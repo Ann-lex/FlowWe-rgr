@@ -5,5 +5,9 @@ spring:
     password: rx7veilside
     driver-class-name: org.postgresql.Driver
 
+  sql:
+    init:
+      mode: always
+
 server:
   port: 8080
