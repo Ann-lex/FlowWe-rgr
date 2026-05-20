@@ -63,6 +63,30 @@ public class UserRepository {
                 .findFirst();
     }
 
+    public Optional<User> findById(Long id) {
+
+        String sql = """
+                SELECT id, first_name, last_name, email, password, role, enabled, balance
+                FROM users
+                WHERE id = ?
+                """;
+
+        return jdbcTemplate.query(sql, this::mapRowToUser, id)
+                .stream()
+                .findFirst();
+    }
+
+    public void enableUser(Long userId) {
+
+        String sql = """
+                UPDATE users
+                SET enabled = true
+                WHERE id = ?
+                """;
+
+        jdbcTemplate.update(sql, userId);
+    }
+
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
 
         User user = new User();
