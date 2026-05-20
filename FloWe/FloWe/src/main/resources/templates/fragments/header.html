@@ -22,6 +22,12 @@
         <span sec:authorize="!isAuthenticated()"> | </span>
 
         <a href="/register" sec:authorize="!isAuthenticated()">Регистрация</a>
+        
+        <span sec:authorize="isAuthenticated()">
+		    Вы вошли как: <b sec:authentication="name"></b>
+		</span>
+
+		|
 
         <form th:action="@{/logout}" method="post" style="display: inline;"
               sec:authorize="isAuthenticated()">
