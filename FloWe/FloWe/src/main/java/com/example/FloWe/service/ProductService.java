@@ -22,6 +22,12 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public List<Product> findBySellerId(Long sellerId) {
+        validateSellerId(sellerId);
+
+        return productRepository.findAllBySellerId(sellerId);
+    }
+
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
@@ -33,7 +39,8 @@ public class ProductService {
         return productRepository.search(keyword, categoryId, min, max);
     }
 
-    public void createProduct(ProductForm form) {
+    public void createProduct(ProductForm form, Long sellerId) {
+        validateSellerId(sellerId);
         validateProductForm(form);
 
         Product product = new Product();
@@ -42,18 +49,15 @@ public class ProductService {
         product.setPrice(form.getPrice());
         product.setQuantity(form.getQuantity());
         product.setImageUrl(normalizeText(form.getImageUrl()));
-
-        /*
-         * sellerId позже будет браться из авторизованного продавца.
-         * Пока не трогаем Spring Security, чтобы не мешать участнику 1.
-         */
-        product.setSellerId(null);
+        product.setSellerId(sellerId);
 
         Long productId = productRepository.save(product);
         productRepository.addProductCategory(productId, form.getCategoryId());
     }
 
-    public void updateProduct(ProductForm form) {
+    public void updateProduct(ProductForm form, Long sellerId) {
+        validateSellerId(sellerId);
+
         if (form.getId() == null) {
             throw new IllegalArgumentException("Не указан id товара");
         }
@@ -68,18 +72,48 @@ public class ProductService {
         product.setQuantity(form.getQuantity());
         product.setImageUrl(normalizeText(form.getImageUrl()));
 
-        productRepository.update(product);
+        int updatedRows = productRepository.updateBySellerId(product, sellerId);
+
+        if (updatedRows == 0) {
+            throw new IllegalArgumentException("Товар не найден или не принадлежит текущему продавцу");
+        }
 
         productRepository.deleteProductCategories(form.getId());
         productRepository.addProductCategory(form.getId(), form.getCategoryId());
     }
 
-    public void deleteProduct(Long id) {
+    public void deleteProduct(Long id, Long sellerId) {
+        validateSellerId(sellerId);
+
         if (id == null) {
             throw new IllegalArgumentException("Не указан id товара");
         }
 
-        productRepository.deleteById(id);
+        int deletedRows = productRepository.deleteByIdAndSellerId(id, sellerId);
+
+        if (deletedRows == 0) {
+            throw new IllegalArgumentException("Товар не найден или не принадлежит текущему продавцу");
+        }
+    }
+
+    public ProductForm getProductFormForEdit(Long id, Long sellerId) {
+        validateSellerId(sellerId);
+
+        Product product = productRepository.findByIdAndSellerId(id, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Товар не найден или не принадлежит текущему продавцу"));
+
+        ProductForm form = new ProductForm();
+        form.setId(product.getId());
+        form.setName(product.getName());
+        form.setDescription(product.getDescription());
+        form.setPrice(product.getPrice());
+        form.setQuantity(product.getQuantity());
+        form.setImageUrl(product.getImageUrl());
+
+        productRepository.findCategoryIdByProductIdAndSellerId(id, sellerId)
+                .ifPresent(form::setCategoryId);
+
+        return form;
     }
 
     private BigDecimal parsePrice(String value) {
@@ -99,8 +133,8 @@ public class ProductService {
             throw new IllegalArgumentException("Название товара не может быть пустым");
         }
 
-        if (form.getPrice() == null || form.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Цена товара должна быть положительной");
+        if (form.getPrice() == null || form.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Цена товара должна быть больше нуля");
         }
 
         if (form.getQuantity() == null || form.getQuantity() < 0) {
@@ -109,6 +143,12 @@ public class ProductService {
 
         if (form.getCategoryId() == null) {
             throw new IllegalArgumentException("Необходимо выбрать категорию товара");
+        }
+    }
+
+    private void validateSellerId(Long sellerId) {
+        if (sellerId == null) {
+            throw new IllegalArgumentException("Продавец не найден");
         }
     }
 

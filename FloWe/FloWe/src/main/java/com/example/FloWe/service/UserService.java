@@ -45,4 +45,13 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    public User findByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Пользователь не найден");
+        }
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+    }
 }

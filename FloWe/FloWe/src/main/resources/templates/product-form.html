@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${formTitle} + ' | FloWe'">Форма товара | FloWe</title>
+</head>
+<body>
+
+<h1 th:text="${formTitle}">Форма товара</h1>
+
+<a href="/seller/products">Назад к моим товарам</a>
+
+<hr>
+
+<p style="color: red;" th:if="${error}" th:text="${error}"></p>
+
+<form th:action="@{${formAction}}" th:object="${productForm}" method="post">
+    <input type="hidden"
+           th:if="${_csrf != null}"
+           th:name="${_csrf.parameterName}"
+           th:value="${_csrf.token}">
+
+    <input type="hidden" th:field="*{id}">
+
+    <div>
+        <label>Название товара:</label>
+        <input type="text" th:field="*{name}" required>
+    </div>
+
+    <div>
+        <label>Описание:</label>
+        <textarea th:field="*{description}" rows="4"></textarea>
+    </div>
+
+    <div>
+        <label>Цена:</label>
+        <input type="number" step="0.01" min="0.01" th:field="*{price}" required>
+    </div>
+
+    <div>
+        <label>Количество на складе:</label>
+        <input type="number" min="0" th:field="*{quantity}" required>
+    </div>
+
+    <div>
+        <label>Ссылка на изображение:</label>
+        <input type="text" th:field="*{imageUrl}">
+    </div>
+
+    <div>
+        <label>Категория:</label>
+        <select th:field="*{categoryId}" required>
+            <option value="">Выберите категорию</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}">
+                Категория
+            </option>
+        </select>
+    </div>
+
+    <br>
+
+    <button type="submit">Сохранить</button>
+</form>
+
+</body>
+</html>

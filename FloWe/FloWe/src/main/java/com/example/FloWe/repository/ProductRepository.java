@@ -38,6 +38,28 @@ public class ProductRepository {
         );
     }
 
+    public List<Product> findAllBySellerId(Long sellerId) {
+        String sql = """
+                SELECT id, name, description, price, quantity, image_url, seller_id
+                FROM products
+                WHERE seller_id = ?
+                ORDER BY id DESC
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                        new Product(
+                                rs.getLong("id"),
+                                rs.getString("name"),
+                                rs.getString("description"),
+                                rs.getBigDecimal("price"),
+                                rs.getInt("quantity"),
+                                rs.getString("image_url"),
+                                rs.getObject("seller_id", Long.class)
+                        ),
+                sellerId
+        );
+    }
+
     public Optional<Product> findById(Long id) {
         String sql = """
                 SELECT id, name, description, price, quantity, image_url, seller_id
@@ -56,6 +78,31 @@ public class ProductRepository {
                                 rs.getObject("seller_id", Long.class)
                         ),
                 id
+        );
+
+        return products.stream().findFirst();
+    }
+
+    public Optional<Product> findByIdAndSellerId(Long id, Long sellerId) {
+        String sql = """
+                SELECT id, name, description, price, quantity, image_url, seller_id
+                FROM products
+                WHERE id = ?
+                  AND seller_id = ?
+                """;
+
+        List<Product> products = jdbcTemplate.query(sql, (rs, rowNum) ->
+                        new Product(
+                                rs.getLong("id"),
+                                rs.getString("name"),
+                                rs.getString("description"),
+                                rs.getBigDecimal("price"),
+                                rs.getInt("quantity"),
+                                rs.getString("image_url"),
+                                rs.getObject("seller_id", Long.class)
+                        ),
+                id,
+                sellerId
         );
 
         return products.stream().findFirst();
@@ -138,7 +185,7 @@ public class ProductRepository {
         );
     }
 
-    public void update(Product product) {
+    public int updateBySellerId(Product product, Long sellerId) {
         String sql = """
                 UPDATE products
                 SET name = ?,
@@ -147,26 +194,29 @@ public class ProductRepository {
                     quantity = ?,
                     image_url = ?
                 WHERE id = ?
+                  AND seller_id = ?
                 """;
 
-        jdbcTemplate.update(
+        return jdbcTemplate.update(
                 sql,
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
                 product.getQuantity(),
                 product.getImageUrl(),
-                product.getId()
+                product.getId(),
+                sellerId
         );
     }
 
-    public void deleteById(Long id) {
+    public int deleteByIdAndSellerId(Long id, Long sellerId) {
         String sql = """
                 DELETE FROM products
                 WHERE id = ?
+                  AND seller_id = ?
                 """;
 
-        jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update(sql, id, sellerId);
     }
 
     public void addProductCategory(Long productId, Long categoryId) {
@@ -186,5 +236,25 @@ public class ProductRepository {
                 """;
 
         jdbcTemplate.update(sql, productId);
+    }
+
+    public Optional<Long> findCategoryIdByProductIdAndSellerId(Long productId, Long sellerId) {
+        String sql = """
+                SELECT pc.category_id
+                FROM product_categories pc
+                JOIN products p ON p.id = pc.product_id
+                WHERE pc.product_id = ?
+                  AND p.seller_id = ?
+                LIMIT 1
+                """;
+
+        List<Long> categoryIds = jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> rs.getLong("category_id"),
+                productId,
+                sellerId
+        );
+
+        return categoryIds.stream().findFirst();
     }
 }

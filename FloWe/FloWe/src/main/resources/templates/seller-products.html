@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои товары | FloWe</title>
+</head>
+<body>
+
+<h1>Мои товары</h1>
+
+<p th:if="${sellerEmail != null}">
+    Продавец:
+    <span th:text="${sellerEmail}">seller@email.com</span>
+</p>
+
+<a href="/">На главную</a>
+<br>
+<a href="/products">Каталог товаров</a>
+<br>
+<a href="/seller/products/add">Добавить товар</a>
+
+<hr>
+
+<p style="color: red;" th:if="${error}" th:text="${error}"></p>
+
+<p th:if="${products == null or products.isEmpty()}">
+    У вас пока нет добавленных товаров.
+</p>
+
+<table border="1" cellpadding="8" th:if="${products != null and !products.isEmpty()}">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Цена</th>
+        <th>Количество</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td th:text="${product.id}">1</td>
+        <td th:text="${product.name}">Название</td>
+        <td th:text="${product.price}">0</td>
+        <td th:text="${product.quantity}">0</td>
+        <td>
+            <a th:href="@{/products/{id}(id=${product.id})}">Открыть</a>
+            |
+            <a th:href="@{/seller/products/edit/{id}(id=${product.id})}">Редактировать</a>
+            |
+            <form th:action="@{/seller/products/delete/{id}(id=${product.id})}" method="post" style="display:inline;">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                <button type="submit">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
