@@ -4,6 +4,10 @@ import com.example.FloWe.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Optional;
+
 @Repository
 public class UserRepository {
 
@@ -36,17 +40,42 @@ public class UserRepository {
     public boolean existsByEmail(String email) {
 
         String sql = """
-                SELECT COUNT(*) 
+                SELECT COUNT(*)
                 FROM users
                 WHERE email = ?
                 """;
 
-        Integer count = jdbcTemplate.queryForObject(
-                sql,
-                Integer.class,
-                email
-        );
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
 
         return count != null && count > 0;
+    }
+
+    public Optional<User> findByEmail(String email) {
+
+        String sql = """
+                SELECT id, first_name, last_name, email, password, role, enabled, balance
+                FROM users
+                WHERE email = ?
+                """;
+
+        return jdbcTemplate.query(sql, this::mapRowToUser, email)
+                .stream()
+                .findFirst();
+    }
+
+    private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
+
+        User user = new User();
+
+        user.setId(rs.getLong("id"));
+        user.setFirstName(rs.getString("first_name"));
+        user.setLastName(rs.getString("last_name"));
+        user.setEmail(rs.getString("email"));
+        user.setPassword(rs.getString("password"));
+        user.setRole(rs.getString("role"));
+        user.setEnabled(rs.getBoolean("enabled"));
+        user.setBalance(rs.getBigDecimal("balance"));
+
+        return user;
     }
 }

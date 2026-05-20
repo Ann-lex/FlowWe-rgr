@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход | FloWe</title>
+</head>
+<body>
+
+<h1>Вход</h1>
+
+<p style="color: red;" th:if="${param.error}">
+    Неверный email или пароль
+</p>
+
+<p style="color: green;" th:if="${param.logout}">
+    Вы вышли из аккаунта
+</p>
+
+<form th:action="@{/login}" method="post">
+    <div>
+        <label>Email:</label>
+        <input type="email" name="email" required>
+    </div>
+
+    <div>
+        <label>Пароль:</label>
+        <input type="password" name="password" required>
+    </div>
+
+    <button type="submit">Войти</button>
+</form>
+
+<p>
+    Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+</p>
+
+</body>
+</html>
