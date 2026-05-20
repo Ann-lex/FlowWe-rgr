@@ -18,17 +18,20 @@ public class UserService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     public UserService(UserRepository userRepository,
                        VerificationTokenRepository verificationTokenRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService) {
 
         this.userRepository = userRepository;
         this.verificationTokenRepository = verificationTokenRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
-    public String register(RegisterRequest request) {
+    public void register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException(
@@ -53,39 +56,53 @@ public class UserService {
         userRepository.save(user);
 
         User savedUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден после сохранения"));
+                .orElseThrow(() ->
+                        new RuntimeException("Пользователь не найден после сохранения")
+                );
 
         String token = UUID.randomUUID().toString();
 
         VerificationToken verificationToken = new VerificationToken();
+
         verificationToken.setToken(token);
         verificationToken.setUserId(savedUser.getId());
-        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
+        verificationToken.setExpiryDate(
+                LocalDateTime.now().plusHours(24)
+        );
 
         verificationTokenRepository.save(verificationToken);
 
-        return token;
+        String verificationLink =
+                "http://localhost:8080/verify?token=" + token;
+
+        emailService.sendVerificationEmail(
+                savedUser.getEmail(),
+                verificationLink
+        );
     }
 
     public void verifyUser(String token) {
 
-        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new IllegalArgumentException("Неверная ссылка подтверждения"));
+        VerificationToken verificationToken =
+                verificationTokenRepository.findByToken(token)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Неверная ссылка подтверждения"
+                                )
+                        );
 
-        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Срок действия ссылки истёк");
+        if (verificationToken.getExpiryDate()
+                .isBefore(LocalDateTime.now())) {
+
+            throw new IllegalArgumentException(
+                    "Срок действия ссылки истёк"
+            );
         }
 
-        userRepository.enableUser(verificationToken.getUserId());
+        userRepository.enableUser(
+                verificationToken.getUserId()
+        );
+
         verificationTokenRepository.deleteByToken(token);
-    }
-
-    public User findByEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Пользователь не найден");
-        }
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
     }
 }

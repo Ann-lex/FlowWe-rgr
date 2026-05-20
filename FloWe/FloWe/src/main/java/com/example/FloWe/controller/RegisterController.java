@@ -19,58 +19,37 @@ public class RegisterController {
 
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
-
         model.addAttribute("registerRequest", new RegisterRequest());
-
         return "register";
     }
 
     @PostMapping("/register")
-    public String register(RegisterRequest registerRequest,
-                           Model model) {
-
+    public String register(RegisterRequest registerRequest, Model model) {
         try {
-
-            String token = userService.register(registerRequest);
+            userService.register(registerRequest);
 
             model.addAttribute(
                     "message",
-                    "Аккаунт создан. Ссылка подтверждения: "
-                            + "http://localhost:8080/verify?token=" + token
+                    "Регистрация прошла успешно. Проверьте почту и перейдите по ссылке для подтверждения аккаунта."
             );
 
             return "register-success";
 
         } catch (IllegalArgumentException e) {
-
             model.addAttribute("error", e.getMessage());
-
             return "register";
         }
     }
 
     @GetMapping("/verify")
-    public String verify(@RequestParam String token,
-                         Model model) {
-
+    public String verify(@RequestParam String token, Model model) {
         try {
-
             userService.verifyUser(token);
-
-            model.addAttribute(
-                    "message",
-                    "Аккаунт успешно подтвержден"
-            );
-
+            model.addAttribute("message", "Аккаунт успешно подтвержден");
             return "verification-success";
 
         } catch (IllegalArgumentException e) {
-
-            model.addAttribute(
-                    "error",
-                    e.getMessage()
-            );
-
+            model.addAttribute("error", e.getMessage());
             return "verification-error";
         }
     }
