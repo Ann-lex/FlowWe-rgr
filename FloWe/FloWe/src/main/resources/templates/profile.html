@@ -6,6 +6,8 @@
 </head>
 <body>
 
+<div th:replace="~{fragments/header :: header}"></div>
+
 <h1>Профиль пользователя</h1>
 
 <p><b>Имя:</b> <span th:text="${user.firstName}"></span></p>

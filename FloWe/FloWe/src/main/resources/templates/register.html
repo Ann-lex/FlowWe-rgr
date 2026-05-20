@@ -6,6 +6,8 @@
 </head>
 <body>
 
+<div th:replace="~{fragments/header :: header}"></div>
+
 <h1>Регистрация</h1>
 
 <p style="color: red;" th:if="${error}" th:text="${error}"></p>

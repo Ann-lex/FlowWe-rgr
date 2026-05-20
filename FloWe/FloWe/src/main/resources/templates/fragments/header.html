@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="header">
+    <nav>
+        <a href="/">Главная</a>
+        |
+        <a href="/profile">Профиль</a>
+        |
+        <a href="/admin">Админ</a>
+        |
+        <a href="/seller">Продавец</a>
+        |
+        <a href="/login">Вход</a>
+        |
+        <a href="/register">Регистрация</a>
+
+        <form action="/logout" method="post" style="display: inline;">
+            <button type="submit">Выйти</button>
+        </form>
+    </nav>
+
+    <hr>
+</header>
+
+</body>
+</html>
