@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.name} + ' | FloWe'">Товар | FloWe</title>
+</head>
+<body>
+
+<a href="/products">Вернуться в каталог</a>
+
+<hr>
+
+<h1 th:text="${product.name}">Название товара</h1>
+
+<div th:if="${product.imageUrl != null and !product.imageUrl.isBlank()}">
+    <img th:src="${product.imageUrl}" alt="Фото товара" width="300">
+</div>
+
+<p>
+    <b>Описание:</b>
+    <span th:text="${product.description}">Описание товара</span>
+</p>
+
+<p>
+    <b>Цена:</b>
+    <span th:text="${product.price}">0</span>
+</p>
+
+<p>
+    <b>Количество на складе:</b>
+    <span th:text="${product.quantity}">0</span>
+</p>
+
+<p th:if="${product.quantity > 0}">
+    Товар доступен для покупки.
+</p>
+
+<p th:if="${product.quantity <= 0}">
+    Товара нет в наличии.
+</p>
+
+<hr>
+
+<p>
+    Здесь позже будут кнопки корзины, избранного и отзывы.
+</p>
+
+</body>
+</html>
