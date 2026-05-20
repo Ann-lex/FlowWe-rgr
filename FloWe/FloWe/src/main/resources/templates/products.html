@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог товаров | FloWe</title>
+</head>
+<body>
+
+<h1>Каталог товаров</h1>
+
+<a href="/">На главную</a>
+
+<hr>
+
+<h2>Поиск товаров</h2>
+
+<p style="color: red;" th:if="${error}" th:text="${error}"></p>
+
+<form th:action="@{/products}" method="get">
+    <div>
+        <label>Название или описание:</label>
+        <input type="text" name="keyword" th:value="${keyword}">
+    </div>
+
+    <div>
+        <label>Категория:</label>
+        <select name="categoryId">
+            <option value="">Все категории</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.id}"
+                    th:text="${category.name}"
+                    th:selected="${selectedCategoryId != null and selectedCategoryId == category.id}">
+            </option>
+        </select>
+    </div>
+
+    <div>
+        <label>Цена от:</label>
+        <input type="number" step="0.01" name="minPrice" th:value="${minPrice}">
+    </div>
+
+    <div>
+        <label>Цена до:</label>
+        <input type="number" step="0.01" name="maxPrice" th:value="${maxPrice}">
+    </div>
+
+    <button type="submit">Найти</button>
+</form>
+
+<hr>
+
+<h2>Товары</h2>
+
+<p th:if="${products == null or products.isEmpty()}">
+    Товары не найдены.
+</p>
+
+<div th:each="product : ${products}">
+    <h3 th:text="${product.name}">Название товара</h3>
+
+    <p>
+        <b>Описание:</b>
+        <span th:text="${product.description}">Описание</span>
+    </p>
+
+    <p>
+        <b>Цена:</b>
+        <span th:text="${product.price}">0</span>
+    </p>
+
+    <p>
+        <b>Количество на складе:</b>
+        <span th:text="${product.quantity}">0</span>
+    </p>
+
+    <div th:if="${product.imageUrl != null and !product.imageUrl.isBlank()}">
+        <img th:src="${product.imageUrl}" alt="Фото товара" width="200">
+    </div>
+
+    <hr>
+</div>
+
+</body>
+</html>
