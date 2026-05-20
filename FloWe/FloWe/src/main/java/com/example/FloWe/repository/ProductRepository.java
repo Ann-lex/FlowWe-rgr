@@ -70,9 +70,7 @@ public class ProductRepository {
         List<Object> params = new ArrayList<>();
 
         if (categoryId != null) {
-            sql.append("""
-                    JOIN product_categories pc ON p.id = pc.product_id
-                    """);
+            sql.append(" JOIN product_categories pc ON p.id = pc.product_id ");
         }
 
         sql.append(" WHERE 1 = 1 ");
@@ -119,5 +117,74 @@ public class ProductRepository {
                         ),
                 params.toArray()
         );
+    }
+
+    public Long save(Product product) {
+        String sql = """
+                INSERT INTO products (name, description, price, quantity, image_url, seller_id)
+                VALUES (?, ?, ?, ?, ?, ?)
+                RETURNING id
+                """;
+
+        return jdbcTemplate.queryForObject(
+                sql,
+                Long.class,
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getImageUrl(),
+                product.getSellerId()
+        );
+    }
+
+    public void update(Product product) {
+        String sql = """
+                UPDATE products
+                SET name = ?,
+                    description = ?,
+                    price = ?,
+                    quantity = ?,
+                    image_url = ?
+                WHERE id = ?
+                """;
+
+        jdbcTemplate.update(
+                sql,
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getImageUrl(),
+                product.getId()
+        );
+    }
+
+    public void deleteById(Long id) {
+        String sql = """
+                DELETE FROM products
+                WHERE id = ?
+                """;
+
+        jdbcTemplate.update(sql, id);
+    }
+
+    public void addProductCategory(Long productId, Long categoryId) {
+        String sql = """
+                INSERT INTO product_categories (product_id, category_id)
+                VALUES (?, ?)
+                ON CONFLICT DO NOTHING
+                """;
+
+        jdbcTemplate.update(sql, productId, categoryId);
+    }
+
+    public void deleteProductCategories(Long productId) {
+        String sql = """
+                DELETE FROM product_categories
+                WHERE product_id = ?
+                """;
+
+        jdbcTemplate.update(sql, productId);
     }
 }
