@@ -1,5 +1,6 @@
 package com.example.FloWe.controller;
 
+import com.example.FloWe.model.Category;
 import com.example.FloWe.model.Product;
 import com.example.FloWe.service.CategoryService;
 import com.example.FloWe.service.ProductService;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class ProductController {
@@ -29,11 +31,27 @@ public class ProductController {
             @RequestParam(required = false) String maxPrice,
             Model model
     ) {
+        model.addAttribute("categories", categoryService.findAll());
+
+        if (categoryId == null) {
+            model.addAttribute("showCategoriesOnly", true);
+            return "products";
+        }
+
+        Optional<Category> selectedCategory = categoryService.findById(categoryId);
+
+        if (selectedCategory.isEmpty()) {
+            model.addAttribute("showCategoriesOnly", true);
+            model.addAttribute("error", "Категория не найдена");
+            return "products";
+        }
+
         try {
             List<Product> products = productService.search(keyword, categoryId, minPrice, maxPrice);
 
+            model.addAttribute("showCategoriesOnly", false);
             model.addAttribute("products", products);
-            model.addAttribute("categories", categoryService.findAll());
+            model.addAttribute("selectedCategory", selectedCategory.get());
 
             model.addAttribute("keyword", keyword);
             model.addAttribute("selectedCategoryId", categoryId);
@@ -42,8 +60,10 @@ public class ProductController {
 
             return "products";
         } catch (IllegalArgumentException e) {
-            model.addAttribute("products", productService.findAll());
-            model.addAttribute("categories", categoryService.findAll());
+            model.addAttribute("showCategoriesOnly", false);
+            model.addAttribute("products", productService.search(null, categoryId, null, null));
+            model.addAttribute("selectedCategory", selectedCategory.get());
+            model.addAttribute("selectedCategoryId", categoryId);
             model.addAttribute("error", e.getMessage());
 
             return "products";

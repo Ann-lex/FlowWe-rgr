@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CategoryRepository {
@@ -28,6 +29,24 @@ public class CategoryRepository {
                         rs.getString("name")
                 )
         );
+    }
+
+    public Optional<Category> findById(Long id) {
+        String sql = """
+                SELECT id, name
+                FROM categories
+                WHERE id = ?
+                """;
+
+        List<Category> categories = jdbcTemplate.query(sql, (rs, rowNum) ->
+                        new Category(
+                                rs.getLong("id"),
+                                rs.getString("name")
+                        ),
+                id
+        );
+
+        return categories.stream().findFirst();
     }
 
     public void save(Category category) {

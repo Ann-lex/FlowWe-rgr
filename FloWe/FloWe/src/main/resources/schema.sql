@@ -39,6 +39,13 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
+INSERT INTO categories (name)
+VALUES
+('Букеты'),
+('Цветы в ассортименте'),
+('Комнатные растения')
+ON CONFLICT (name) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS product_categories (
     product_id BIGINT NOT NULL,
     category_id BIGINT NOT NULL,
