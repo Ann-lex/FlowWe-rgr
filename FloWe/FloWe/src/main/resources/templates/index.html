@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>FloWe</title>
@@ -7,7 +7,28 @@
 <body>
 
 <h1>Интернет-магазин FloWe</h1>
+
 <p>Главная страница работает</p>
+
+<hr>
+
+<p>
+    <a href="/register">Регистрация</a>
+</p>
+
+<p>
+    <a href="/login">Вход</a>
+</p>
+
+<p>
+    <a href="/profile">Профиль</a>
+</p>
+
+<hr>
+
+<form action="/logout" method="post">
+    <button type="submit">Выйти</button>
+</form>
 
 </body>
 </html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль | FloWe</title>
+</head>
+<body>
+
+<h1>Профиль пользователя</h1>
+
+<p><b>Имя:</b> <span th:text="${user.firstName}"></span></p>
+<p><b>Фамилия:</b> <span th:text="${user.lastName}"></span></p>
+<p><b>Email:</b> <span th:text="${user.email}"></span></p>
+<p><b>Роль:</b> <span th:text="${user.role}"></span></p>
+<p><b>Баланс:</b> <span th:text="${user.balance}"></span></p>
+
+<a href="/">На главную</a>
+
+<br><br>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Выйти</button>
+</form>
+
+</body>
+</html>
