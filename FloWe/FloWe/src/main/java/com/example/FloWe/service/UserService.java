@@ -40,7 +40,7 @@ public class UserService {
         );
 
         user.setRole("BUYER");
-        user.setEnabled(false);
+        user.setEnabled(true);
         user.setBalance(BigDecimal.ZERO);
 
         userRepository.save(user);
