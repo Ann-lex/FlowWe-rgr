@@ -1,18 +1,38 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Продавец | FloWe</title>
+    <title>Кабинет продавца | FloWe</title>
 </head>
 <body>
 
-<div th:replace="~{fragments/header :: header}"></div>
+<div>
+    <a href="/">Главная</a>
+    |
+    <a href="/products">Каталог товаров</a>
+</div>
 
-<h1>Панель продавца</h1>
+<hr>
 
-<p>Здесь будет управление товарами продавца.</p>
+<h1>Кабинет продавца</h1>
 
-<a href="/">На главную</a>
+<p>
+    <b>Продавец:</b>
+    <span th:text="${sellerName}">Имя продавца</span>
+</p>
+
+<p>
+    <b>Количество товаров:</b>
+    <span th:text="${productCount}">0</span>
+</p>
+
+<p>
+    Здесь продавец может управлять своими товарами: добавлять, редактировать и удалять товары.
+</p>
+
+<p>
+    <a href="/seller/products">Мои товары</a>
+</p>
 
 </body>
 </html>

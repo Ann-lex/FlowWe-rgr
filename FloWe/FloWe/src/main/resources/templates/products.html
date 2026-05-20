@@ -8,7 +8,7 @@
 
 <h1>Каталог товаров</h1>
 
-<a href="/">На главную</a>
+<a href="/">Главная</a>
 
 <hr>
 
@@ -72,7 +72,7 @@
 
     <div th:each="product : ${products}">
         <h3>
-            <a th:href="@{/products/{id}(id=${product.id})}"
+            <a th:href="@{/products/{id}(id=${product.id}, categoryId=${selectedCategoryId})}"
                th:text="${product.name}">
                 Название товара
             </a>
@@ -100,5 +100,6 @@
         <hr>
     </div>
 </div>
+
 </body>
 </html>

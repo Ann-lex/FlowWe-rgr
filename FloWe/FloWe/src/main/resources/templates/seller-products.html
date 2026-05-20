@@ -6,20 +6,21 @@
 </head>
 <body>
 
-<h1>Мои товары</h1>
-
-<p th:if="${sellerEmail != null}">
-    Продавец:
-    <span th:text="${sellerEmail}">seller@email.com</span>
-</p>
-
-<a href="/">На главную</a>
-<br>
-<a href="/products">Каталог товаров</a>
-<br>
-<a href="/seller/products/add">Добавить товар</a>
+<div>
+    <a href="/">Главная</a>
+    |
+    <a href="/products">Каталог товаров</a>
+    |
+    <a href="/seller">Кабинет продавца</a>
+</div>
 
 <hr>
+
+<h1>Мои товары</h1>
+
+<p>
+    <a href="/seller/products/add">Добавить товар</a>
+</p>
 
 <p style="color: red;" th:if="${error}" th:text="${error}"></p>
 
@@ -30,7 +31,6 @@
 <table border="1" cellpadding="8" th:if="${products != null and !products.isEmpty()}">
     <thead>
     <tr>
-        <th>ID</th>
         <th>Название</th>
         <th>Цена</th>
         <th>Количество</th>
@@ -40,7 +40,6 @@
 
     <tbody>
     <tr th:each="product : ${products}">
-        <td th:text="${product.id}">1</td>
         <td th:text="${product.name}">Название</td>
         <td th:text="${product.price}">0</td>
         <td th:text="${product.quantity}">0</td>
@@ -49,12 +48,18 @@
             |
             <a th:href="@{/seller/products/edit/{id}(id=${product.id})}">Редактировать</a>
             |
-            <form th:action="@{/seller/products/delete/{id}(id=${product.id})}" method="post" style="display:inline;">
+            <form th:action="@{/seller/products/delete/{id}(id=${product.id})}"
+                  method="post"
+                  style="display:inline;">
                 <input type="hidden"
                        th:if="${_csrf != null}"
                        th:name="${_csrf.parameterName}"
                        th:value="${_csrf.token}">
-                <button type="submit">Удалить</button>
+
+                <button type="submit"
+                        onclick="return confirm('Вы точно хотите удалить этот товар?');">
+                    Удалить
+                </button>
             </form>
         </td>
     </tr>

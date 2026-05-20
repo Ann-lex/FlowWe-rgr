@@ -4,10 +4,16 @@ import com.example.FloWe.dto.ProductForm;
 import com.example.FloWe.model.Product;
 import com.example.FloWe.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProductService {
@@ -48,7 +54,7 @@ public class ProductService {
         product.setDescription(normalizeText(form.getDescription()));
         product.setPrice(form.getPrice());
         product.setQuantity(form.getQuantity());
-        product.setImageUrl(normalizeText(form.getImageUrl()));
+        product.setImageUrl(saveImageFile(form.getImageFile()));
         product.setSellerId(sellerId);
 
         Long productId = productRepository.save(product);
@@ -70,7 +76,14 @@ public class ProductService {
         product.setDescription(normalizeText(form.getDescription()));
         product.setPrice(form.getPrice());
         product.setQuantity(form.getQuantity());
-        product.setImageUrl(normalizeText(form.getImageUrl()));
+
+        String newImageUrl = saveImageFile(form.getImageFile());
+
+        if (newImageUrl == null) {
+            product.setImageUrl(normalizeText(form.getImageUrl()));
+        } else {
+            product.setImageUrl(newImageUrl);
+        }
 
         int updatedRows = productRepository.updateBySellerId(product, sellerId);
 
@@ -114,6 +127,48 @@ public class ProductService {
                 .ifPresent(form::setCategoryId);
 
         return form;
+    }
+
+    private String saveImageFile(MultipartFile imageFile) {
+        if (imageFile == null || imageFile.isEmpty()) {
+            return null;
+        }
+
+        String contentType = imageFile.getContentType();
+
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("Можно загружать только изображения");
+        }
+
+        try {
+            String originalFilename = imageFile.getOriginalFilename();
+            String extension = getFileExtension(originalFilename);
+            String fileName = UUID.randomUUID() + extension;
+
+            Path uploadPath = Paths.get("uploads", "products").toAbsolutePath().normalize();
+            Files.createDirectories(uploadPath);
+
+            Path filePath = uploadPath.resolve(fileName);
+            imageFile.transferTo(filePath.toFile());
+
+            return "/uploads/products/" + fileName;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Не удалось загрузить изображение");
+        }
+    }
+
+    private String getFileExtension(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return "";
+        }
+
+        int dotIndex = filename.lastIndexOf(".");
+
+        if (dotIndex == -1) {
+            return "";
+        }
+
+        return filename.substring(dotIndex);
     }
 
     private BigDecimal parsePrice(String value) {

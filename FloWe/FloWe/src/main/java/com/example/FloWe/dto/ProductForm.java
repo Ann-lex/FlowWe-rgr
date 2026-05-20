@@ -1,5 +1,7 @@
 package com.example.FloWe.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.math.BigDecimal;
 
 public class ProductForm {
@@ -10,6 +12,7 @@ public class ProductForm {
     private BigDecimal price;
     private Integer quantity;
     private String imageUrl;
+    private MultipartFile imageFile;
     private Long categoryId;
 
     public ProductForm() {
@@ -67,6 +70,14 @@ public class ProductForm {
         this.imageUrl = imageUrl;
     }
 
+
+    public MultipartFile getImageFile() {
+        return imageFile;
+    }
+
+    public void setImageFile(MultipartFile imageFile) {
+        this.imageFile = imageFile;
+    }
 
     public Long getCategoryId() {
         return categoryId;

@@ -6,7 +6,15 @@
 </head>
 <body>
 
-<a href="/products">Вернуться в каталог</a>
+<a th:if="${returnCategoryId != null}"
+   th:href="@{/products(categoryId=${returnCategoryId})}">
+    Вернуться в категорию
+</a>
+
+<a th:if="${returnCategoryId == null}"
+   href="/products">
+    Вернуться в каталог
+</a>
 
 <hr>
 

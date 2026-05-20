@@ -72,7 +72,11 @@ public class ProductController {
     }
 
     @GetMapping("/products/{id}")
-    public String productDetails(@PathVariable Long id, Model model) {
+    public String productDetails(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long categoryId,
+            Model model
+    ) {
         Optional<Product> product = productService.findById(id);
 
         if (product.isEmpty()) {
@@ -83,6 +87,7 @@ public class ProductController {
         }
 
         model.addAttribute("product", product.get());
+        model.addAttribute("returnCategoryId", categoryId);
 
         return "product-details";
     }
