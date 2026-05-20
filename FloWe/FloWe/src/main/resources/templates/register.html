@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация | FloWe</title>
+</head>
+<body>
+
+<h1>Регистрация</h1>
+
+<p style="color: red;" th:if="${error}" th:text="${error}"></p>
+
+<form th:action="@{/register}" th:object="${registerRequest}" method="post">
+    <div>
+        <label>Имя:</label>
+        <input type="text" th:field="*{firstName}" required>
+    </div>
+
+    <div>
+        <label>Фамилия:</label>
+        <input type="text" th:field="*{lastName}" required>
+    </div>
+
+    <div>
+        <label>Email:</label>
+        <input type="email" th:field="*{email}" required>
+    </div>
+
+    <div>
+        <label>Пароль:</label>
+        <input type="password" th:field="*{password}" required>
+    </div>
+
+    <button type="submit">Зарегистрироваться</button>
+</form>
+
+</body>
+</html>
