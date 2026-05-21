@@ -1,5 +1,7 @@
 package com.example.FloWe.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import com.example.FloWe.dto.RegisterRequest;
 import com.example.FloWe.service.UserService;
 import org.springframework.stereotype.Controller;
@@ -22,9 +24,17 @@ public class RegisterController {
         model.addAttribute("registerRequest", new RegisterRequest());
         return "register";
     }
-
+    
+    
     @PostMapping("/register")
-    public String register(RegisterRequest registerRequest, Model model) {
+    public String register(@Valid RegisterRequest registerRequest,
+                           BindingResult bindingResult,
+                           Model model) {
+
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
+
         try {
             userService.register(registerRequest);
 
@@ -40,7 +50,6 @@ public class RegisterController {
             return "register";
         }
     }
-
     @GetMapping("/verify")
     public String verify(@RequestParam String token, Model model) {
         try {
