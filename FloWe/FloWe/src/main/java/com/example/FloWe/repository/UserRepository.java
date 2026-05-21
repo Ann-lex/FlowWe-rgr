@@ -86,7 +86,18 @@ public class UserRepository {
 
         jdbcTemplate.update(sql, userId);
     }
+    
+    public void updatePassword(Long userId, String newPassword) {
 
+        String sql = """
+                UPDATE users
+                SET password = ?
+                WHERE id = ?
+                """;
+
+        jdbcTemplate.update(sql, newPassword, userId);
+    }
+    
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
 
         User user = new User();

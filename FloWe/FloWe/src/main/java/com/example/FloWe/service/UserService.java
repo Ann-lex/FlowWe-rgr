@@ -1,8 +1,10 @@
 package com.example.FloWe.service;
 
 import com.example.FloWe.dto.RegisterRequest;
+import com.example.FloWe.model.PasswordResetToken;
 import com.example.FloWe.model.User;
 import com.example.FloWe.model.VerificationToken;
+import com.example.FloWe.repository.PasswordResetTokenRepository;
 import com.example.FloWe.repository.UserRepository;
 import com.example.FloWe.repository.VerificationTokenRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,23 +13,25 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.Optional;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
     public UserService(UserRepository userRepository,
                        VerificationTokenRepository verificationTokenRepository,
+                       PasswordResetTokenRepository passwordResetTokenRepository,
                        PasswordEncoder passwordEncoder,
                        EmailService emailService) {
 
         this.userRepository = userRepository;
         this.verificationTokenRepository = verificationTokenRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
@@ -107,7 +111,65 @@ public class UserService {
         verificationTokenRepository.deleteByToken(token);
     }
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public void createPasswordResetToken(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "Пользователь с таким email не найден"
+                        )
+                );
+
+        passwordResetTokenRepository.deleteByUserId(user.getId());
+
+        String token = UUID.randomUUID().toString();
+
+        PasswordResetToken passwordResetToken =
+                new PasswordResetToken();
+
+        passwordResetToken.setToken(token);
+        passwordResetToken.setUserId(user.getId());
+        passwordResetToken.setExpiryDate(
+                LocalDateTime.now().plusHours(1)
+        );
+
+        passwordResetTokenRepository.save(passwordResetToken);
+
+        String resetLink =
+                "http://localhost:8080/reset-password?token=" + token;
+
+        emailService.sendPasswordResetEmail(
+                user.getEmail(),
+                resetLink
+        );
+    }
+
+    public void resetPassword(String token, String newPassword) {
+
+        PasswordResetToken passwordResetToken =
+                passwordResetTokenRepository.findByToken(token)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "Неверная ссылка восстановления"
+                                )
+                        );
+
+        if (passwordResetToken.getExpiryDate()
+                .isBefore(LocalDateTime.now())) {
+
+            throw new IllegalArgumentException(
+                    "Срок действия ссылки истёк"
+            );
+        }
+
+        String encodedPassword =
+                passwordEncoder.encode(newPassword);
+
+        userRepository.updatePassword(
+                passwordResetToken.getUserId(),
+                encodedPassword
+        );
+
+        passwordResetTokenRepository.deleteByToken(token);
     }
 }
