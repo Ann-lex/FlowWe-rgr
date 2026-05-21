@@ -37,7 +37,8 @@ public class SellerController {
             throw new IllegalArgumentException("Пользователь не авторизован");
         }
 
-        return userService.findByEmail(principal.getName());
+        return userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
     }
 
     private String getSellerName(User user) {

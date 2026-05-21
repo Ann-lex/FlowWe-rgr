@@ -72,3 +72,26 @@ CREATE TABLE IF NOT EXISTS verification_tokens (
 
     expiry_date TIMESTAMP NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS carts (
+                                     id BIGSERIAL PRIMARY KEY,
+                                     user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS cart_items (
+                                          id BIGSERIAL PRIMARY KEY,
+                                          cart_id BIGINT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
+                                          product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+                                          product_name VARCHAR(255) NOT NULL,
+                                          price DECIMAL(10,2) NOT NULL,
+                                          quantity INTEGER NOT NULL,
+                                          UNIQUE (cart_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS favorites (
+                                         id BIGSERIAL PRIMARY KEY,
+                                         user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                                         product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+                                         access_level VARCHAR(20) NOT NULL DEFAULT 'PRIVATE',
+                                         UNIQUE (user_id, product_id)
+);
