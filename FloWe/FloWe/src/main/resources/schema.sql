@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS verification_tokens (
     expiry_date TIMESTAMP NOT NULL
 );
 
+<<<<<<< HEAD
 CREATE TABLE IF NOT EXISTS carts (
                                      id BIGSERIAL PRIMARY KEY,
                                      user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
@@ -94,4 +95,14 @@ CREATE TABLE IF NOT EXISTS favorites (
                                          product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
                                          access_level VARCHAR(20) NOT NULL DEFAULT 'PRIVATE',
                                          UNIQUE (user_id, product_id)
+=======
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id BIGSERIAL PRIMARY KEY,
+
+    token VARCHAR(255) NOT NULL UNIQUE,
+
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+    expiry_date TIMESTAMP NOT NULL
+>>>>>>> 19ed2e5beedf208e4a8eefa7c67f39063ed8a53f
 );

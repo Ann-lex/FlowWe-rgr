@@ -27,4 +27,19 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendPasswordResetEmail(String to, String resetLink) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(to);
+        message.setSubject("Восстановление пароля FloWe");
+        message.setText(
+                "Здравствуйте!\n\n" +
+                "Для восстановления пароля перейдите по ссылке:\n" +
+                resetLink + "\n\n" +
+                "Если вы не запрашивали восстановление пароля, просто проигнорируйте это письмо."
+        );
+
+        mailSender.send(message);
+    }
 }
