@@ -22,7 +22,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/register", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/seller/**").hasRole("SELLER")
-                        .requestMatchers("/profile/**", "/cart/**", "/orders/**").authenticated()
+                        .requestMatchers("/profile/**", "/cart/**", "/favorites/**", "/orders/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

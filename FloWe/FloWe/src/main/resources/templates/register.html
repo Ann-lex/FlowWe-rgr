@@ -3,60 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Регистрация | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<h1>Регистрация</h1>
+<main class="page">
+    <h1>Регистрация</h1>
 
-<p style="color: red;" th:if="${error}" th:text="${error}"></p>
+    <p class="alert error" th:if="${error}" th:text="${error}"></p>
 
-<form th:action="@{/register}" th:object="${registerRequest}" method="post">
+    <form class="form" th:action="@{/register}" th:object="${registerRequest}" method="post">
+        <div class="form-row">
+            <label for="firstName">Имя</label>
+            <input id="firstName" type="text" th:field="*{firstName}" required>
+        </div>
 
-    <div>
-        <label>Имя:</label>
-        <input type="text" th:field="*{firstName}">
-        <p style="color: red;"
-           th:if="${#fields.hasErrors('firstName')}"
-           th:errors="*{firstName}">
-        </p>
-    </div>
+        <div class="form-row">
+            <label for="lastName">Фамилия</label>
+            <input id="lastName" type="text" th:field="*{lastName}" required>
+        </div>
 
-    <div>
-        <label>Фамилия:</label>
-        <input type="text" th:field="*{lastName}">
-        <p style="color: red;"
-           th:if="${#fields.hasErrors('lastName')}"
-           th:errors="*{lastName}">
-        </p>
-    </div>
+        <div class="form-row">
+            <label for="email">Email</label>
+            <input id="email" type="email" th:field="*{email}" required>
+        </div>
 
-    <div>
-        <label>Email:</label>
-        <input type="email" th:field="*{email}">
-        <p style="color: red;"
-           th:if="${#fields.hasErrors('email')}"
-           th:errors="*{email}">
-        </p>
-    </div>
+        <div class="form-row">
+            <label for="password">Пароль</label>
+            <input id="password" type="password" th:field="*{password}" required>
+        </div>
 
-    <div>
-        <label>Пароль:</label>
-        <input type="password" th:field="*{password}">
-        <p style="color: red;"
-           th:if="${#fields.hasErrors('password')}"
-           th:errors="*{password}">
-        </p>
-    </div>
-
-    <button type="submit">Зарегистрироваться</button>
-</form>
-
-<p>
-    Уже есть аккаунт?
-    <a href="/login">Войти</a>
-</p>
+        <button class="btn primary" type="submit">Зарегистрироваться</button>
+    </form>
+</main>
 
 </body>
 </html>

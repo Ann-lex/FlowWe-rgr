@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Профиль | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<h1>Профиль пользователя</h1>
+<main class="page">
+    <h1>Профиль пользователя</h1>
 
-<p><b>Имя:</b> <span th:text="${user.firstName}"></span></p>
-<p><b>Фамилия:</b> <span th:text="${user.lastName}"></span></p>
-<p><b>Email:</b> <span th:text="${user.email}"></span></p>
-<p><b>Роль:</b> <span th:text="${user.role}"></span></p>
-<p><b>Баланс:</b> <span th:text="${user.balance}"></span></p>
+    <section class="card">
+        <p><b>Имя:</b> <span th:text="${user.firstName}">Имя</span></p>
+        <p><b>Фамилия:</b> <span th:text="${user.lastName}">Фамилия</span></p>
+        <p><b>Email:</b> <span th:text="${user.email}">email@example.com</span></p>
+        <p><b>Роль:</b> <span th:text="${user.role}">BUYER</span></p>
+        <p><b>Баланс:</b> <span th:text="${user.balance} + ' ₽'">0 ₽</span></p>
+    </section>
 
-<a href="/">На главную</a>
+    <div class="actions" style="margin-top:18px;">
+        <a class="btn ghost" th:href="@{/}">На главную</a>
 
-<br><br>
-
-<form th:action="@{/logout}" method="post">
-    <button type="submit">Выйти</button>
-</form>
+        <form th:action="@{/logout}" method="post">
+            <button class="btn primary" type="submit">Выйти</button>
+        </form>
+    </div>
+</main>
 
 </body>
 </html>

@@ -1,18 +1,28 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Доступ запрещён | FloWe</title>
+    <title>Доступ запрещен | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<h1>403 - Доступ запрещён</h1>
+<main class="page">
+    <section class="card">
+        <h1>403 - Доступ запрещен</h1>
+        <p>
+            У вас недостаточно прав для просмотра этой страницы.
+        </p>
 
-<p>У вас недостаточно прав для просмотра этой страницы.</p>
-
-<a href="/">На главную</a>
+        <div class="actions">
+            <a class="btn primary" th:href="@{/}">На главную</a>
+            <a class="btn ghost" th:href="@{/products}">В каталог</a>
+        </div>
+    </section>
+</main>
 
 </body>
 </html>

@@ -1,18 +1,39 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Администратор | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<h1>Панель администратора</h1>
+<main class="page">
+    <h1>Панель администратора</h1>
 
-<p>Здесь будет управление пользователями, балансами и просмотр продаж.</p>
+    <section class="grid three">
+        <article class="card">
+            <h3>Пользователи</h3>
+            <p>Управление аккаунтами, ролями и доступом пользователей.</p>
+        </article>
 
-<a href="/">На главную</a>
+        <article class="card">
+            <h3>Балансы</h3>
+            <p>Просмотр и изменение баланса покупателей.</p>
+        </article>
+
+        <article class="card">
+            <h3>Продажи</h3>
+            <p>Контроль покупок, заказов и общей статистики продаж.</p>
+        </article>
+    </section>
+
+    <p style="color:#6b7280; margin-top:20px;">
+        Эти разделы можно подключить к отдельным контроллерам следующим этапом.
+    </p>
+</main>
 
 </body>
 </html>

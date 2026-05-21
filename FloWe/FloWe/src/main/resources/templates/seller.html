@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Кабинет продавца | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 <body>
 
-<div>
-    <a href="/">Главная</a>
-    |
-    <a href="/products">Каталог товаров</a>
-</div>
+<div th:replace="~{fragments/header :: header}"></div>
 
-<hr>
+<main class="page">
+    <div class="toolbar">
+        <h1>Кабинет продавца</h1>
+        <a class="btn primary" th:href="@{/seller/products}">Мои товары</a>
+    </div>
 
-<h1>Кабинет продавца</h1>
+    <section class="grid three">
+        <article class="card">
+            <h3>Продавец</h3>
+            <p th:text="${sellerName}">Имя продавца</p>
+        </article>
 
-<p>
-    <b>Продавец:</b>
-    <span th:text="${sellerName}">Имя продавца</span>
-</p>
+        <article class="card">
+            <h3>Товаров добавлено</h3>
+            <p th:text="${productCount}">0</p>
+        </article>
 
-<p>
-    <b>Количество товаров:</b>
-    <span th:text="${productCount}">0</span>
-</p>
-
-<p>
-    Здесь продавец может управлять своими товарами: добавлять, редактировать и удалять товары.
-</p>
-
-<p>
-    <a href="/seller/products">Мои товары</a>
-</p>
+        <article class="card">
+            <h3>Управление</h3>
+            <p>Добавляйте, редактируйте и удаляйте товары, контролируйте цену и остатки.</p>
+        </article>
+    </section>
+</main>
 
 </body>
 </html>
