@@ -4,38 +4,36 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
-<header th:fragment="header">
-    <nav>
-        <a href="/">Главная</a>
-        |
+<header class="site-header" th:fragment="header">
+    <div class="header-inner">
+        <a class="brand" th:href="@{/}">FloWe</a>
 
-        <a href="/profile" sec:authorize="isAuthenticated()">Профиль</a>
-        <span sec:authorize="isAuthenticated()"> | </span>
+        <nav class="nav">
+            <a th:href="@{/}">Главная</a>
+            <a th:href="@{/products}">Каталог</a>
 
-        <a href="/admin" sec:authorize="hasRole('ADMIN')">Админ</a>
-        <span sec:authorize="hasRole('ADMIN')"> | </span>
+            <a th:href="@{/cart}" sec:authorize="hasRole('BUYER')">Корзина</a>
+            <a th:href="@{/favorites}" sec:authorize="hasRole('BUYER')">Избранное</a>
 
-        <a href="/seller" sec:authorize="hasRole('SELLER')">Продавец</a>
-        <span sec:authorize="hasRole('SELLER')"> | </span>
+            <a th:href="@{/seller}" sec:authorize="hasRole('SELLER')">Продавец</a>
+            <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Админ</a>
 
-        <a href="/login" sec:authorize="!isAuthenticated()">Вход</a>
-        <span sec:authorize="!isAuthenticated()"> | </span>
+            <a th:href="@{/profile}" sec:authorize="isAuthenticated()">Профиль</a>
+        </nav>
 
-        <a href="/register" sec:authorize="!isAuthenticated()">Регистрация</a>
-        
-        <span sec:authorize="isAuthenticated()">
-		    Вы вошли как: <b sec:authentication="name"></b>
-		</span>
+        <div class="header-actions">
+            <span class="user-email" sec:authorize="isAuthenticated()">
+                <span sec:authentication="name"></span>
+            </span>
 
-		|
+            <a class="btn btn-light" th:href="@{/login}" sec:authorize="!isAuthenticated()">Войти</a>
+            <a class="btn btn-primary" th:href="@{/register}" sec:authorize="!isAuthenticated()">Регистрация</a>
 
-        <form th:action="@{/logout}" method="post" style="display: inline;"
-              sec:authorize="isAuthenticated()">
-            <button type="submit">Выйти</button>
-        </form>
-    </nav>
-
-    <hr>
+            <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+                <button class="btn btn-light" type="submit">Выйти</button>
+            </form>
+        </div>
+    </div>
 </header>
 
 </body>
