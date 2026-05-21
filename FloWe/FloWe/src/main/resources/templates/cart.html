@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Корзина | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="page">
+    <div class="toolbar">
+        <h1>Корзина</h1>
+
+        <form th:if="${cart.items != null and !cart.items.isEmpty()}"
+              th:action="@{/cart/clear}"
+              method="post"
+              data-confirm="Очистить корзину?">
+            <button class="btn ghost" type="submit">Очистить</button>
+        </form>
+    </div>
+
+    <p class="empty" th:if="${cart.items == null or cart.items.isEmpty()}">
+        Корзина пока пуста.
+    </p>
+
+    <table class="table" th:if="${cart.items != null and !cart.items.isEmpty()}">
+        <thead>
+        <tr>
+            <th>Товар</th>
+            <th>Цена</th>
+            <th>Количество</th>
+            <th>Сумма</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="item : ${cart.items}">
+            <td>
+                <a th:href="@{/products/{id}(id=${item.productId})}"
+                   th:text="${item.productName}">
+                    Товар
+                </a>
+            </td>
+            <td th:text="${item.price} + ' ₽'">0 ₽</td>
+            <td>
+                <form class="actions"
+                      th:action="@{/cart/items/{id}/quantity(id=${item.id})}"
+                      method="post">
+                    <input type="number" name="quantity" min="1" th:value="${item.quantity}">
+                    <button class="btn ghost" type="submit">Обновить</button>
+                </form>
+            </td>
+            <td th:text="${item.price.multiply(T(java.math.BigDecimal).valueOf(item.quantity))} + ' ₽'">0 ₽</td>
+            <td>
+                <form th:action="@{/cart/items/{id}/delete(id=${item.id})}"
+                      method="post"
+                      data-confirm="Удалить товар из корзины?">
+                    <button class="btn ghost" type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <section class="card" th:if="${cart.items != null and !cart.items.isEmpty()}" style="margin-top:18px;">
+        <h3>Итого</h3>
+        <p><b>Товаров:</b> <span th:text="${cart.totalQuantity}">0</span></p>
+        <p><b>Сумма:</b> <span th:text="${cart.totalPrice} + ' ₽'">0 ₽</span></p>
+        <button class="btn primary" type="button" disabled>Оформить покупку</button>
+    </section>
+</main>
+
+</body>
+</html>
