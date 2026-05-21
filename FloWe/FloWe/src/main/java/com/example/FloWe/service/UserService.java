@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -104,5 +105,9 @@ public class UserService {
         );
 
         verificationTokenRepository.deleteByToken(token);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }
