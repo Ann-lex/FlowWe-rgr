@@ -3,55 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${product.name} + ' | FloWe'">Товар | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 <body>
 
-<a th:if="${returnCategoryId != null}"
-   th:href="@{/products(categoryId=${returnCategoryId})}">
-    Вернуться в категорию
-</a>
+<div th:replace="~{fragments/header :: header}"></div>
 
-<a th:if="${returnCategoryId == null}"
-   href="/products">
-    Вернуться в каталог
-</a>
+<main class="page">
+    <div class="toolbar">
+        <a class="btn ghost"
+           th:if="${returnCategoryId != null}"
+           th:href="@{/products(categoryId=${returnCategoryId})}">
+            Назад в категорию
+        </a>
 
-<hr>
+        <a class="btn ghost"
+           th:if="${returnCategoryId == null}"
+           th:href="@{/products}">
+            Назад в каталог
+        </a>
+    </div>
 
-<h1 th:text="${product.name}">Название товара</h1>
+    <section class="grid" style="grid-template-columns: minmax(280px, 420px) 1fr;">
+        <div class="card">
+            <img th:if="${product.imageUrl != null and !product.imageUrl.isBlank()}"
+                 th:src="${product.imageUrl}"
+                 alt="Фото товара"
+                 style="width: 100%; border-radius: 8px; object-fit: cover;">
 
-<div th:if="${product.imageUrl != null and !product.imageUrl.isBlank()}">
-    <img th:src="${product.imageUrl}" alt="Фото товара" width="300">
-</div>
+            <div th:if="${product.imageUrl == null or product.imageUrl.isBlank()}" class="empty">
+                Фото товара пока не добавлено.
+            </div>
+        </div>
 
-<p>
-    <b>Описание:</b>
-    <span th:text="${product.description}">Описание товара</span>
-</p>
+        <div class="card">
+            <h1 th:text="${product.name}">Название товара</h1>
 
-<p>
-    <b>Цена:</b>
-    <span th:text="${product.price}">0</span>
-</p>
+            <p th:text="${product.description}">
+                Описание товара
+            </p>
 
-<p>
-    <b>Количество на складе:</b>
-    <span th:text="${product.quantity}">0</span>
-</p>
+            <p>
+                <strong class="product-price" th:text="${product.price} + ' ₽'">0 ₽</strong>
+            </p>
 
-<p th:if="${product.quantity > 0}">
-    Товар доступен для покупки.
-</p>
+            <p>
+                <b>На складе:</b>
+                <span th:text="${product.quantity}">0</span>
+            </p>
 
-<p th:if="${product.quantity <= 0}">
-    Товара нет в наличии.
-</p>
+            <p class="alert" th:classappend="${product.quantity > 0} ? '' : ' error'">
+                <span th:if="${product.quantity > 0}">Товар доступен для покупки.</span>
+                <span th:if="${product.quantity <= 0}">Товара нет в наличии.</span>
+            </p>
 
-<hr>
+            <div class="actions">
+                <button class="btn primary" type="button" disabled>
+                    В корзину
+                </button>
 
-<p>
-    Здесь позже будут кнопки корзины, избранного и отзывы.
-</p>
+                <button class="btn ghost" type="button" disabled>
+                    В избранное
+                </button>
+            </div>
+
+            <p style="color:#6b7280; margin-top:16px;">
+            <form th:action="@{/cart/items}" method="post">
+                <input type="hidden" name="productId" th:value="${product.id}">
+                <input type="hidden" name="quantity" value="1">
+                <button class="btn primary" type="submit" th:disabled="${product.quantity <= 0}">
+                    В корзину
+                </button>
+            </form>
+
+            <form th:action="@{/favorites/items}" method="post">
+                <input type="hidden" name="productId" th:value="${product.id}">
+                <select name="accessLevel">
+                    <option value="PRIVATE">Только мне</option>
+                    <option value="LINK">По ссылке</option>
+                    <option value="PUBLIC">Публично</option>
+                </select>
+                <button class="btn ghost" type="submit">В избранное</button>
+            </form>
+            </p>
+        </div>
+    </section>
+</main>
 
 </body>
 </html>
