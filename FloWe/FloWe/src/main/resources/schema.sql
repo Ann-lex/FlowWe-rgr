@@ -1,108 +1,89 @@
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
-
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
-
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-
     role VARCHAR(20) NOT NULL,
-
     enabled BOOLEAN DEFAULT FALSE,
-
     balance DECIMAL(10,2) DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS products (
-    id BIGSERIAL PRIMARY KEY,
-
-    name VARCHAR(255) NOT NULL,
-
-    description TEXT,
-
-    price DECIMAL(10,2) NOT NULL,
-
-    quantity INTEGER NOT NULL,
-
-    image_url VARCHAR(500),
-
-    seller_id BIGINT
-);
-
-ALTER TABLE products
-ADD COLUMN IF NOT EXISTS seller_id BIGINT;
-
-CREATE TABLE IF NOT EXISTS categories (
-    id BIGSERIAL PRIMARY KEY,
-
-    name VARCHAR(100) NOT NULL UNIQUE
-);
-
-INSERT INTO categories (name)
-VALUES
-('Букеты'),
-('Цветы в ассортименте'),
-('Комнатные растения')
-ON CONFLICT (name) DO NOTHING;
-
-CREATE TABLE IF NOT EXISTS product_categories (
-    product_id BIGINT NOT NULL,
-    category_id BIGINT NOT NULL,
-
-    PRIMARY KEY (product_id, category_id),
-
-    CONSTRAINT fk_product_categories_product
-        FOREIGN KEY (product_id)
-        REFERENCES products(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_product_categories_category
-        FOREIGN KEY (category_id)
-        REFERENCES categories(id)
-        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS verification_tokens (
     id BIGSERIAL PRIMARY KEY,
-
     token VARCHAR(255) NOT NULL UNIQUE,
-
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-
     expiry_date TIMESTAMP NOT NULL
 );
 
-<<<<<<< HEAD
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id BIGSERIAL PRIMARY KEY,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expiry_date TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS products (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    quantity INTEGER NOT NULL,
+    image_url VARCHAR(500),
+    seller_id BIGINT REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS product_categories (
+    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    category_id BIGINT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    PRIMARY KEY (product_id, category_id)
+);
+
 CREATE TABLE IF NOT EXISTS carts (
-                                     id BIGSERIAL PRIMARY KEY,
-                                     user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS cart_items (
-                                          id BIGSERIAL PRIMARY KEY,
-                                          cart_id BIGINT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
-                                          product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-                                          product_name VARCHAR(255) NOT NULL,
-                                          price DECIMAL(10,2) NOT NULL,
-                                          quantity INTEGER NOT NULL,
-                                          UNIQUE (cart_id, product_id)
+    id BIGSERIAL PRIMARY KEY,
+    cart_id BIGINT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
+    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS favorites (
-                                         id BIGSERIAL PRIMARY KEY,
-                                         user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                                         product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-                                         access_level VARCHAR(20) NOT NULL DEFAULT 'PRIVATE',
-                                         UNIQUE (user_id, product_id)
-=======
-CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id BIGSERIAL PRIMARY KEY,
-
-    token VARCHAR(255) NOT NULL UNIQUE,
-
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    UNIQUE (user_id, product_id)
+);
 
-    expiry_date TIMESTAMP NOT NULL
->>>>>>> 19ed2e5beedf208e4a8eefa7c67f39063ed8a53f
+CREATE TABLE IF NOT EXISTS orders (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    total_price DECIMAL(10,2) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'CREATED',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL,
+    text TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
