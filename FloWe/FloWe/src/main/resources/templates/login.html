@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Вход | FloWe</title>
+
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script th:src="@{/js/app.js}" defer></script>
 </head>
@@ -11,34 +12,61 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="page">
+
     <h1>Вход</h1>
 
-    <p class="alert error" th:if="${param.error}">
+    <p class="alert error"
+       th:if="${param.error}">
         Неверный email или пароль.
     </p>
 
-    <p class="alert" th:if="${param.logout}">
+    <p class="alert"
+       th:if="${param.logout}">
         Вы вышли из аккаунта.
     </p>
 
-    <form class="form" th:action="@{/login}" method="post">
+    <form class="form"
+          th:action="@{/login}"
+          method="post">
+
         <div class="form-row">
             <label for="email">Email</label>
-            <input id="email" type="email" name="email" required>
+
+            <input id="email"
+                   type="email"
+                   name="username"
+                   required>
         </div>
 
         <div class="form-row">
             <label for="password">Пароль</label>
-            <input id="password" type="password" name="password" required>
+
+            <input id="password"
+                   type="password"
+                   name="password"
+                   required>
         </div>
 
-        <button class="btn primary" type="submit">Войти</button>
+        <button class="btn primary"
+                type="submit">
+            Войти
+        </button>
+
     </form>
 
     <p>
-        Нет аккаунта?
-        <a th:href="@{/register}">Зарегистрироваться</a>
+        <a th:href="@{/forgot-password}">
+            Забыли пароль?
+        </a>
     </p>
+
+    <p>
+        Нет аккаунта?
+        <a th:href="@{/register}">
+            Зарегистрироваться
+        </a>
+    </p>
+
 </main>
 
 </body>
