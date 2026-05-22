@@ -113,4 +113,44 @@ public class UserRepository {
 
         return user;
     }
+
+    public java.util.List<User> findAll() {
+        String sql = """
+            SELECT id, first_name, last_name, email, password, role, enabled, balance
+            FROM users
+            ORDER BY id DESC
+            """;
+
+        return jdbcTemplate.query(sql, this::mapRowToUser);
+    }
+
+    public void updateRole(Long userId, String role) {
+        String sql = """
+            UPDATE users
+            SET role = ?
+            WHERE id = ?
+            """;
+
+        jdbcTemplate.update(sql, role, userId);
+    }
+
+    public void updateEnabled(Long userId, boolean enabled) {
+        String sql = """
+            UPDATE users
+            SET enabled = ?
+            WHERE id = ?
+            """;
+
+        jdbcTemplate.update(sql, enabled, userId);
+    }
+
+    public void updateBalance(Long userId, java.math.BigDecimal balance) {
+        String sql = """
+            UPDATE users
+            SET balance = ?
+            WHERE id = ?
+            """;
+
+        jdbcTemplate.update(sql, balance, userId);
+    }
 }

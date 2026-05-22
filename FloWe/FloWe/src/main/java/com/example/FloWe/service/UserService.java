@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -171,5 +173,43 @@ public class UserService {
         );
 
         passwordResetTokenRepository.deleteByToken(token);
+    }
+
+    private static final Set<String> ROLES = Set.of("ADMIN", "SELLER", "BUYER");
+
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public void updateRole(Long userId, String role) {
+        if (userId == null) {
+            throw new IllegalArgumentException("Пользователь не найден");
+        }
+
+        if (role == null || !ROLES.contains(role)) {
+            throw new IllegalArgumentException("Некорректная роль пользователя");
+        }
+
+        userRepository.updateRole(userId, role);
+    }
+
+    public void updateEnabled(Long userId, boolean enabled) {
+        if (userId == null) {
+            throw new IllegalArgumentException("Пользователь не найден");
+        }
+
+        userRepository.updateEnabled(userId, enabled);
+    }
+
+    public void updateBalance(Long userId, BigDecimal balance) {
+        if (userId == null) {
+            throw new IllegalArgumentException("Пользователь не найден");
+        }
+
+        if (balance == null || balance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Баланс не может быть отрицательным");
+        }
+
+        userRepository.updateBalance(userId, balance);
     }
 }
