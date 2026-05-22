@@ -1,6 +1,7 @@
 package com.example.FloWe.controller;
 
 import com.example.FloWe.service.CartService;
+import com.example.FloWe.service.OrderService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +13,11 @@ import java.security.Principal;
 public class CartController {
 
     private final CartService cartService;
+    private final OrderService orderService;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, OrderService orderService) {
         this.cartService = cartService;
+        this.orderService = orderService;
     }
 
     @GetMapping
@@ -49,5 +52,11 @@ public class CartController {
     public String clear(Principal principal) {
         cartService.clear(principal.getName());
         return "redirect:/cart";
+    }
+
+    @PostMapping("/checkout")
+    public String checkout(Principal principal) {
+        orderService.checkout(principal.getName());
+        return "redirect:/orders";
     }
 }

@@ -5,34 +5,322 @@
     <title>Администратор | FloWe</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <script th:src="@{/js/app.js}" defer></script>
+
+    <style>
+        .admin-section {
+            margin-top: 32px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .admin-table th {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .admin-actions form {
+            margin: 0;
+        }
+
+        .admin-actions input,
+        .admin-actions select {
+            min-width: 120px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-blocked {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .muted {
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header}"></div>
 
 <main class="page">
-    <h1>Панель администратора</h1>
+    <div class="toolbar">
+        <h1>Панель администратора</h1>
+        <a class="btn primary" th:href="@{/products}">Открыть каталог</a>
+    </div>
 
     <section class="grid three">
         <article class="card">
             <h3>Пользователи</h3>
-            <p>Управление аккаунтами, ролями и доступом пользователей.</p>
+            <p>
+                Всего:
+                <b th:text="${users != null ? users.size() : 0}">0</b>
+            </p>
         </article>
 
         <article class="card">
-            <h3>Балансы</h3>
-            <p>Просмотр и изменение баланса покупателей.</p>
+            <h3>Товары</h3>
+            <p>
+                Всего:
+                <b th:text="${products != null ? products.size() : 0}">0</b>
+            </p>
         </article>
 
         <article class="card">
             <h3>Продажи</h3>
-            <p>Контроль покупок, заказов и общей статистики продаж.</p>
+            <p>
+                Всего заказов:
+                <b th:text="${orders != null ? orders.size() : 0}">0</b>
+            </p>
         </article>
     </section>
 
-    <p style="color:#6b7280; margin-top:20px;">
-        Эти разделы можно подключить к отдельным контроллерам следующим этапом.
-    </p>
+    <section class="admin-section">
+        <div class="toolbar">
+            <h2>Пользователи</h2>
+        </div>
+
+        <p class="empty" th:if="${users == null or users.isEmpty()}">
+            Пользователи не найдены.
+        </p>
+
+        <table class="admin-table" th:if="${users != null and !users.isEmpty()}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Пользователь</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Статус</th>
+                <th>Баланс</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.id}">1</td>
+
+                <td>
+                    <span th:text="${user.firstName}">Имя</span>
+                    <span th:text="${user.lastName}">Фамилия</span>
+                </td>
+
+                <td th:text="${user.email}">email@example.com</td>
+
+                <td>
+                    <form class="admin-actions"
+                          th:action="@{/admin/users/{id}/role(id=${user.id})}"
+                          method="post">
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+
+                        <select name="role">
+                            <option value="BUYER" th:selected="${user.role == 'BUYER'}">Покупатель</option>
+                            <option value="SELLER" th:selected="${user.role == 'SELLER'}">Продавец</option>
+                            <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">Администратор</option>
+                        </select>
+
+                        <button class="btn ghost" type="submit">Сохранить</button>
+                    </form>
+                </td>
+
+                <td>
+                    <span class="status status-active" th:if="${user.enabled}">
+                        Активен
+                    </span>
+
+                    <span class="status status-blocked" th:if="${!user.enabled}">
+                        Отключен
+                    </span>
+
+                    <form th:if="${user.enabled}"
+                          th:action="@{/admin/users/{id}/enabled(id=${user.id})}"
+                          method="post"
+                          style="margin-top:8px;">
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+                        <input type="hidden" name="enabled" value="false">
+
+                        <button class="btn ghost" type="submit">Отключить</button>
+                    </form>
+
+                    <form th:if="${!user.enabled}"
+                          th:action="@{/admin/users/{id}/enabled(id=${user.id})}"
+                          method="post"
+                          style="margin-top:8px;">
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+                        <input type="hidden" name="enabled" value="true">
+
+                        <button class="btn primary" type="submit">Активировать</button>
+                    </form>
+                </td>
+
+                <td>
+                    <form class="admin-actions"
+                          th:action="@{/admin/users/{id}/balance(id=${user.id})}"
+                          method="post">
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+
+                        <input type="number"
+                               name="balance"
+                               min="0"
+                               step="0.01"
+                               th:value="${user.balance}">
+
+                        <button class="btn ghost" type="submit">Сохранить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="admin-section">
+        <div class="toolbar">
+            <h2>Товары</h2>
+            <a class="btn primary" th:href="@{/seller/products/add}">Добавить товар</a>
+        </div>
+
+        <p class="empty" th:if="${products == null or products.isEmpty()}">
+            Товары не найдены.
+        </p>
+
+        <table class="admin-table" th:if="${products != null and !products.isEmpty()}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Цена</th>
+                <th>Остаток</th>
+                <th>ID продавца</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.id}">1</td>
+                <td th:text="${product.name}">Товар</td>
+                <td th:text="${product.price} + ' ₽'">0 ₽</td>
+                <td th:text="${product.quantity}">0</td>
+                <td th:text="${product.sellerId != null ? product.sellerId : 'Не указан'}">1</td>
+
+                <td>
+                    <div class="admin-actions">
+                        <a class="btn ghost"
+                           th:href="@{/products/{id}(id=${product.id})}">
+                            Открыть
+                        </a>
+
+                        <form th:action="@{/admin/products/{id}/delete(id=${product.id})}"
+                              method="post"
+                              data-confirm="Удалить этот товар?">
+                            <input type="hidden"
+                                   th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}">
+
+                            <button class="btn ghost" type="submit">Удалить</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="admin-section">
+        <div class="toolbar">
+            <h2>Продажи</h2>
+        </div>
+
+        <p class="empty" th:if="${orders == null or orders.isEmpty()}">
+            Продаж пока нет.
+        </p>
+
+        <table class="admin-table" th:if="${orders != null and !orders.isEmpty()}">
+            <thead>
+            <tr>
+                <th>ID заказа</th>
+                <th>ID покупателя</th>
+                <th>Статус</th>
+                <th>Сумма</th>
+                <th>Дата</th>
+                <th>Состав</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.id}">1</td>
+                <td th:text="${order.userId}">1</td>
+                <td th:text="${order.status}">PAID</td>
+                <td th:text="${order.totalAmount} + ' ₽'">0 ₽</td>
+                <td th:text="${order.createdAt}">Дата</td>
+                <td>
+                    <div th:if="${order.items == null or order.items.isEmpty()}" class="muted">
+                        Нет позиций
+                    </div>
+
+                    <div th:if="${order.items != null and !order.items.isEmpty()}">
+                        <div th:each="item : ${order.items}">
+                            <span th:text="${item.productName}">Товар</span>,
+                            <span th:text="${item.quantity}">1</span> шт.,
+                            <span th:text="${item.unitPrice} + ' ₽'">0 ₽</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
 </main>
 
 </body>

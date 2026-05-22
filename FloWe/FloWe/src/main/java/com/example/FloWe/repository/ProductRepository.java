@@ -266,4 +266,19 @@ public class ProductRepository {
 
         return jdbcTemplate.update(sql, id);
     }
+
+    public void decreaseQuantity(Long productId, int amount) {
+        String sql = """
+            UPDATE products
+            SET quantity = quantity - ?
+            WHERE id = ?
+              AND quantity >= ?
+            """;
+
+        int updatedRows = jdbcTemplate.update(sql, amount, productId, amount);
+
+        if (updatedRows == 0) {
+            throw new IllegalArgumentException("На складе недостаточно товара");
+        }
+    }
 }

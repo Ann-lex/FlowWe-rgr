@@ -1,27 +1,36 @@
 package com.example.FloWe.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.ui.Model;
+import com.example.FloWe.service.OrderService;
 import com.example.FloWe.service.ProductService;
 import com.example.FloWe.service.UserService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
 import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
     private final UserService userService;
     private final ProductService productService;
+    private final OrderService orderService;
 
-    public AdminController(UserService userService, ProductService productService) {
+    public AdminController(UserService userService,
+                           ProductService productService,
+                           OrderService orderService) {
         this.userService = userService;
         this.productService = productService;
+        this.orderService = orderService;
     }
 
     @GetMapping
     public String adminPage(Model model) {
         model.addAttribute("users", userService.findAllUsers());
         model.addAttribute("products", productService.findAll());
+        model.addAttribute("orders", orderService.findAll());
+
         return "admin";
     }
 

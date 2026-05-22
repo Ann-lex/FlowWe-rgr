@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои заказы | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="page">
+    <h1>Мои заказы</h1>
+
+    <p class="empty" th:if="${orders == null or orders.isEmpty()}">
+        У вас пока нет заказов.
+    </p>
+
+    <section class="grid" th:if="${orders != null and !orders.isEmpty()}">
+        <article class="card" th:each="order : ${orders}">
+            <h3 th:text="'Заказ #' + ${order.id}">Заказ #1</h3>
+
+            <p><b>Статус:</b> <span th:text="${order.status}">PAID</span></p>
+            <p><b>Сумма:</b> <span th:text="${order.totalAmount} + ' ₽'">0 ₽</span></p>
+            <p><b>Дата:</b> <span th:text="${order.createdAt}">Дата</span></p>
+
+            <table class="table" th:if="${order.items != null and !order.items.isEmpty()}">
+                <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${order.items}">
+                    <td th:text="${item.productName}">Товар</td>
+                    <td th:text="${item.quantity}">1</td>
+                    <td th:text="${item.unitPrice} + ' ₽'">0 ₽</td>
+                </tr>
+                </tbody>
+            </table>
+        </article>
+    </section>
+</main>
+
+</body>
+</html>

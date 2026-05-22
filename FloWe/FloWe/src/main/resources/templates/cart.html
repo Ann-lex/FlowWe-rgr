@@ -70,7 +70,9 @@
         <h3>Итого</h3>
         <p><b>Товаров:</b> <span th:text="${cart.totalQuantity}">0</span></p>
         <p><b>Сумма:</b> <span th:text="${cart.totalPrice} + ' ₽'">0 ₽</span></p>
-        <button class="btn primary" type="button" disabled>Оформить покупку</button>
+        <form th:action="@{/cart/checkout}" method="post">
+            <button class="btn primary" type="submit">Оформить покупку</button>
+        </form>
     </section>
 </main>
 

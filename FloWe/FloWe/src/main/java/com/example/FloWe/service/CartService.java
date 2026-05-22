@@ -48,13 +48,23 @@ public class CartService {
 
         CartItem existingItem = cartRepository.findItem(cart.getId(), productId).orElse(null);
 
+        int newQuantity = amount;
+
+        if (existingItem != null) {
+            newQuantity = existingItem.getQuantity() + amount;
+        }
+
+        if (newQuantity > product.getQuantity()) {
+            throw new IllegalArgumentException("На складе недостаточно товара");
+        }
+
         if (existingItem == null) {
             cartRepository.addItem(cart.getId(), productId, product.getName(), product.getPrice(), amount);
         } else {
             cartRepository.updateItemQuantity(
                     existingItem.getId(),
                     cart.getId(),
-                    existingItem.getQuantity() + amount
+                    newQuantity
             );
         }
     }
@@ -65,6 +75,20 @@ public class CartService {
         }
 
         Cart cart = getCart(email);
+
+        CartItem item = cart.getItems()
+                .stream()
+                .filter(cartItem -> cartItem.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Товар не найден в корзине"));
+
+        Product product = productRepository.findById(item.getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("Товар не найден"));
+
+        if (product.getQuantity() == null || quantity > product.getQuantity()) {
+            throw new IllegalArgumentException("На складе недостаточно товара");
+        }
+
         cartRepository.updateItemQuantity(itemId, cart.getId(), quantity);
     }
 
