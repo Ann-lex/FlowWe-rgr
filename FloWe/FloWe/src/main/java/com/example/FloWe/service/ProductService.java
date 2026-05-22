@@ -214,4 +214,16 @@ public class ProductService {
 
         return value.trim();
     }
+
+    public void deleteProductByAdmin(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Не указан id товара");
+        }
+
+        int deletedRows = productRepository.deleteById(id);
+
+        if (deletedRows == 0) {
+            throw new IllegalArgumentException("Товар не найден");
+        }
+    }
 }

@@ -257,4 +257,13 @@ public class ProductRepository {
 
         return categoryIds.stream().findFirst();
     }
+
+    public int deleteById(Long id) {
+        String sql = """
+            DELETE FROM products
+            WHERE id = ?
+            """;
+
+        return jdbcTemplate.update(sql, id);
+    }
 }
