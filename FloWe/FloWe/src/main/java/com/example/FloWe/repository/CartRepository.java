@@ -87,16 +87,39 @@ public class CartRepository {
     }
 
     private List<CartItem> findItemsByCartId(Long cartId) {
+
         String sql = """
-                SELECT id, cart_id, product_id, product_name, price, quantity
-                FROM cart_items
-                WHERE cart_id = ?
-                ORDER BY id DESC
+                SELECT ci.id,
+                       ci.cart_id,
+                       ci.product_id,
+                       p.name AS product_name,
+                       p.price,
+                       ci.quantity
+                FROM cart_items ci
+                JOIN products p ON p.id = ci.product_id
+                WHERE ci.cart_id = ?
+                ORDER BY ci.id DESC
                 """;
 
-        return jdbcTemplate.query(sql, this::mapItem, cartId);
-    }
+        return jdbcTemplate.query(
+                sql,
+                new Object[]{cartId},
+                (rs, rowNum) -> {
 
+                    CartItem item = new CartItem();
+
+                    item.setId(rs.getLong("id"));
+                    item.setCartId(rs.getLong("cart_id"));
+                    item.setProductId(rs.getLong("product_id"));
+                    item.setProductName(rs.getString("product_name"));
+                    item.setPrice(rs.getBigDecimal("price"));
+                    item.setQuantity(rs.getInt("quantity"));
+
+                    return item;
+                }
+        );
+    }
+    
     private CartItem mapItem(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
         return new CartItem(
                 rs.getLong("id"),
