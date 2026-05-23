@@ -133,7 +133,6 @@ public class SellerProductController {
         if (principal == null) {
             throw new IllegalArgumentException("Пользователь не авторизован");
         }
-        return userService.findByEmail(principal.getName())
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+        return userService.findByEmail(principal.getName());
     }
 }

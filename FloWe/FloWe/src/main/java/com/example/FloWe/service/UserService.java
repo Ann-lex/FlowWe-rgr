@@ -12,12 +12,14 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UserService {
+
+    private static final Set<String> ROLES = Set.of("ADMIN", "SELLER", "BUYER");
 
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
@@ -41,9 +43,7 @@ public class UserService {
     public void register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException(
-                    "Пользователь с таким email уже существует"
-            );
+            throw new IllegalArgumentException("Пользователь с таким email уже существует");
         }
 
         User user = new User();
@@ -51,11 +51,7 @@ public class UserService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-
-        user.setPassword(
-                passwordEncoder.encode(request.getPassword())
-        );
-
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("BUYER");
         user.setEnabled(false);
         user.setBalance(BigDecimal.ZERO);
@@ -63,119 +59,75 @@ public class UserService {
         userRepository.save(user);
 
         User savedUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(() ->
-                        new RuntimeException("Пользователь не найден после сохранения")
-                );
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден после сохранения"));
 
         String token = UUID.randomUUID().toString();
 
         VerificationToken verificationToken = new VerificationToken();
-
         verificationToken.setToken(token);
         verificationToken.setUserId(savedUser.getId());
-        verificationToken.setExpiryDate(
-                LocalDateTime.now().plusHours(24)
-        );
+        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
 
         verificationTokenRepository.save(verificationToken);
 
-        String verificationLink =
-                "http://localhost:8080/verify?token=" + token;
+        String verificationLink = "http://localhost:8080/verify?token=" + token;
 
-        emailService.sendVerificationEmail(
-                savedUser.getEmail(),
-                verificationLink
-        );
+        emailService.sendVerificationEmail(savedUser.getEmail(), verificationLink);
     }
 
     public void verifyUser(String token) {
 
-        VerificationToken verificationToken =
-                verificationTokenRepository.findByToken(token)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Неверная ссылка подтверждения"
-                                )
-                        );
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Неверная ссылка подтверждения"));
 
-        if (verificationToken.getExpiryDate()
-                .isBefore(LocalDateTime.now())) {
-
-            throw new IllegalArgumentException(
-                    "Срок действия ссылки истёк"
-            );
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Срок действия ссылки истёк");
         }
 
-        userRepository.enableUser(
-                verificationToken.getUserId()
-        );
-
+        userRepository.enableUser(verificationToken.getUserId());
         verificationTokenRepository.deleteByToken(token);
     }
 
     public void createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Пользователь с таким email не найден"
-                        )
-                );
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь с таким email не найден"));
 
         passwordResetTokenRepository.deleteByUserId(user.getId());
 
         String token = UUID.randomUUID().toString();
 
-        PasswordResetToken passwordResetToken =
-                new PasswordResetToken();
-
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
         passwordResetToken.setToken(token);
         passwordResetToken.setUserId(user.getId());
-        passwordResetToken.setExpiryDate(
-                LocalDateTime.now().plusHours(1)
-        );
+        passwordResetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
 
         passwordResetTokenRepository.save(passwordResetToken);
 
-        String resetLink =
-                "http://localhost:8080/reset-password?token=" + token;
+        String resetLink = "http://localhost:8080/reset-password?token=" + token;
 
-        emailService.sendPasswordResetEmail(
-                user.getEmail(),
-                resetLink
-        );
+        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
     public void resetPassword(String token, String newPassword) {
 
-        PasswordResetToken passwordResetToken =
-                passwordResetTokenRepository.findByToken(token)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Неверная ссылка восстановления"
-                                )
-                        );
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Неверная ссылка восстановления"));
 
-        if (passwordResetToken.getExpiryDate()
-                .isBefore(LocalDateTime.now())) {
-
-            throw new IllegalArgumentException(
-                    "Срок действия ссылки истёк"
-            );
+        if (passwordResetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Срок действия ссылки истёк");
         }
 
-        String encodedPassword =
-                passwordEncoder.encode(newPassword);
+        String encodedPassword = passwordEncoder.encode(newPassword);
 
-        userRepository.updatePassword(
-                passwordResetToken.getUserId(),
-                encodedPassword
-        );
-
+        userRepository.updatePassword(passwordResetToken.getUserId(), encodedPassword);
         passwordResetTokenRepository.deleteByToken(token);
     }
 
-    private static final Set<String> ROLES = Set.of("ADMIN", "SELLER", "BUYER");
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь с таким email не найден"));
+    }
 
     public List<User> findAllUsers() {
         return userRepository.findAll();
