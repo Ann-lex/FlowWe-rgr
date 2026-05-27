@@ -89,23 +89,16 @@ public class CartRepository {
     private List<CartItem> findItemsByCartId(Long cartId) {
 
         String sql = """
-                SELECT ci.id,
-                       ci.cart_id,
-                       ci.product_id,
-                       p.name AS product_name,
-                       p.price,
-                       ci.quantity
-                FROM cart_items ci
-                JOIN products p ON p.id = ci.product_id
-                WHERE ci.cart_id = ?
-                ORDER BY ci.id DESC
+                SELECT id, cart_id, product_id, product_name, price, quantity
+                FROM cart_items
+                WHERE cart_id = ?
+                ORDER BY id DESC
                 """;
 
         return jdbcTemplate.query(
                 sql,
                 new Object[]{cartId},
                 (rs, rowNum) -> {
-
                     CartItem item = new CartItem();
 
                     item.setId(rs.getLong("id"));
