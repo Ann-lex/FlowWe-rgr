@@ -218,4 +218,162 @@ textarea {
     .hero h1 {
         font-size: 40px;
     }
+    .category-showcase {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(220px, 1fr));
+        gap: 18px;
+    }
+
+    .category-tile {
+        position: relative;
+        min-height: 260px;
+        border-radius: 14px;
+        overflow: hidden;
+        color: white;
+        text-decoration: none;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .category-tile.bouquets {
+        background-image: url("https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=900&q=80");
+    }
+
+    .category-tile.plants {
+        background-image: url("https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=80");
+    }
+
+    .category-tile.flowers {
+        background-image: url("https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=900&q=80");
+    }
+
+    .category-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.62));
+    }
+
+    .category-content {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+    }
+
+    .category-content b {
+        display: block;
+        font-size: 26px;
+        margin-bottom: 6px;
+    }
+
+    .product-rating,
+    .rating-big {
+        color: #b7791f;
+        font-weight: 700;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-top: 18px;
+    }
+
+    .product-actions form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .product-actions input,
+    .product .actions input {
+        width: 72px;
+    }
+
+    .reviews-panel {
+        margin-top: 24px;
+        padding: 22px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .reviews-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .review-item {
+        padding-top: 14px;
+        margin-top: 14px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .role-hero {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: center;
+        padding: 28px;
+        border-radius: 16px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+    }
+
+    .buyer-page .role-hero {
+        border-left: 6px solid #2f855a;
+    }
+
+    .seller-page .role-hero {
+        border-left: 6px solid #b7791f;
+    }
+
+    .role-hero h1 {
+        margin: 4px 0;
+    }
+
+    .eyebrow {
+        margin: 0;
+        color: #6b7280;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+
+    .role-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(160px, 1fr));
+        gap: 16px;
+        margin: 22px 0;
+    }
+
+    .role-card {
+        padding: 22px;
+        border-radius: 14px;
+        background: #fff;
+        color: #111827;
+        text-decoration: none;
+        border: 1px solid #e5e7eb;
+        font-weight: 700;
+    }
+
+    .role-card:hover,
+    .category-tile:hover {
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 800px) {
+        .category-showcase,
+        .role-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .role-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
 }

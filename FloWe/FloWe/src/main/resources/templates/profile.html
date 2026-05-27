@@ -10,24 +10,27 @@
 
 <div th:replace="~{fragments/header :: header}"></div>
 
-<main class="page">
-    <h1>Профиль пользователя</h1>
-
-    <section class="card">
-        <p><b>Имя:</b> <span th:text="${user.firstName}">Имя</span></p>
-        <p><b>Фамилия:</b> <span th:text="${user.lastName}">Фамилия</span></p>
-        <p><b>Email:</b> <span th:text="${user.email}">email@example.com</span></p>
-        <p><b>Роль:</b> <span th:text="${user.role}">BUYER</span></p>
-        <p><b>Баланс:</b> <span th:text="${user.balance} + ' ₽'">0 ₽</span></p>
+<main class="page role-page buyer-page">
+    <section class="role-hero">
+        <div>
+            <p class="eyebrow">Кабинет покупателя</p>
+            <h1 th:text="${user.firstName} + ' ' + ${user.lastName}">Покупатель</h1>
+            <p th:text="${user.email}">email@example.com</p>
+        </div>
+        <strong th:text="${user.balance} + ' ₽'">0 ₽</strong>
     </section>
 
-    <div class="actions" style="margin-top:18px;">
-        <a class="btn ghost" th:href="@{/}">На главную</a>
+    <section class="role-grid">
+        <a class="role-card" th:href="@{/products}">Каталог</a>
+        <a class="role-card" th:href="@{/cart}">Корзина</a>
+        <a class="role-card" th:href="@{/favorites}">Избранное</a>
+        <a class="role-card" th:href="@{/orders}">Мои заказы</a>
+    </section>
 
-        <form th:action="@{/logout}" method="post">
-            <button class="btn primary" type="submit">Выйти</button>
-        </form>
-    </div>
+    <form th:action="@{/logout}" method="post">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button class="btn primary" type="submit">Выйти</button>
+    </form>
 </main>
 
 </body>
