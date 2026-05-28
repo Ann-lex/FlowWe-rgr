@@ -4,6 +4,7 @@ import com.example.FloWe.dto.ProductForm;
 import com.example.FloWe.model.Product;
 import com.example.FloWe.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -19,9 +20,12 @@ import java.util.UUID;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final StockHistoryService stockHistoryService;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository,
+                          StockHistoryService stockHistoryService) {
         this.productRepository = productRepository;
+        this.stockHistoryService = stockHistoryService;
     }
 
     public List<Product> findAll() {
@@ -45,6 +49,7 @@ public class ProductService {
         return productRepository.search(keyword, categoryId, min, max);
     }
 
+    @Transactional
     public void createProduct(ProductForm form, Long sellerId) {
         validateSellerId(sellerId);
         validateProductForm(form);
@@ -58,9 +63,14 @@ public class ProductService {
         product.setSellerId(sellerId);
 
         Long productId = productRepository.save(product);
+        product.setId(productId);
+
         productRepository.addProductCategory(productId, form.getCategoryId());
+
+        stockHistoryService.logProductCreated(product, sellerId);
     }
 
+    @Transactional
     public void updateProduct(ProductForm form, Long sellerId) {
         validateSellerId(sellerId);
 
@@ -70,12 +80,16 @@ public class ProductService {
 
         validateProductForm(form);
 
+        Product oldProduct = productRepository.findByIdAndSellerId(form.getId(), sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Товар не найден или не принадлежит текущему продавцу"));
+
         Product product = new Product();
         product.setId(form.getId());
         product.setName(form.getName().trim());
         product.setDescription(normalizeText(form.getDescription()));
         product.setPrice(form.getPrice());
         product.setQuantity(form.getQuantity());
+        product.setSellerId(sellerId);
 
         String newImageUrl = saveImageFile(form.getImageFile());
 
@@ -93,14 +107,22 @@ public class ProductService {
 
         productRepository.deleteProductCategories(form.getId());
         productRepository.addProductCategory(form.getId(), form.getCategoryId());
+
+        stockHistoryService.logSellerUpdate(oldProduct, product, sellerId);
     }
 
+    @Transactional
     public void deleteProduct(Long id, Long sellerId) {
         validateSellerId(sellerId);
 
         if (id == null) {
             throw new IllegalArgumentException("Не указан id товара");
         }
+
+        Product product = productRepository.findByIdAndSellerId(id, sellerId)
+                .orElseThrow(() -> new IllegalArgumentException("Товар не найден или не принадлежит текущему продавцу"));
+
+        stockHistoryService.logProductDeleted(product, sellerId);
 
         int deletedRows = productRepository.deleteByIdAndSellerId(id, sellerId);
 
@@ -127,6 +149,24 @@ public class ProductService {
                 .ifPresent(form::setCategoryId);
 
         return form;
+    }
+
+    @Transactional
+    public void deleteProductByAdmin(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Не указан id товара");
+        }
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Товар не найден"));
+
+        stockHistoryService.logProductDeletedByAdmin(product);
+
+        int deletedRows = productRepository.deleteById(id);
+
+        if (deletedRows == 0) {
+            throw new IllegalArgumentException("Товар не найден");
+        }
     }
 
     private String saveImageFile(MultipartFile imageFile) {
@@ -213,17 +253,5 @@ public class ProductService {
         }
 
         return value.trim();
-    }
-
-    public void deleteProductByAdmin(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Не указан id товара");
-        }
-
-        int deletedRows = productRepository.deleteById(id);
-
-        if (deletedRows == 0) {
-            throw new IllegalArgumentException("Товар не найден");
-        }
     }
 }

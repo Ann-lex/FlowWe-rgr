@@ -13,7 +13,11 @@
 <main class="page">
     <div class="toolbar">
         <h1>Кабинет продавца</h1>
-        <a class="btn primary" th:href="@{/seller/products}">Мои товары</a>
+
+        <div class="top-actions">
+            <a class="btn primary" th:href="@{/seller/products}">Мои товары</a>
+            <a class="btn ghost" th:href="@{/seller/stock-history}">История склада</a>
+        </div>
     </div>
 
     <section class="grid three">

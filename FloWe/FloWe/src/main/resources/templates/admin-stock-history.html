@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>История склада | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+
+    <style>
+        .history-page {
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .history-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .history-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1050px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .history-table th {
+            background: #f9fafb;
+            color: #374151;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .history-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .change-plus {
+            color: #166534;
+            font-weight: 700;
+        }
+
+        .change-minus {
+            color: #991b1b;
+            font-weight: 700;
+        }
+
+        .empty-box {
+            padding: 24px;
+            border-radius: 12px;
+            background: #f9fafb;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .muted {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="page history-page">
+    <div class="history-header">
+        <div>
+            <h1>История изменений склада</h1>
+            <p class="muted">
+                Здесь отображаются все изменения количества товаров: покупки, добавления и изменения остатков.
+            </p>
+        </div>
+
+        <a class="btn ghost" th:href="@{/admin}">Вернуться в админ-панель</a>
+    </div>
+
+    <section class="history-card">
+        <p class="empty-box" th:if="${history == null or history.isEmpty()}">
+            История склада пока пуста.
+        </p>
+
+        <div class="history-table-wrapper" th:if="${history != null and !history.isEmpty()}">
+            <table class="history-table">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Товар</th>
+                    <th>Продавец</th>
+                    <th>Пользователь</th>
+                    <th>Заказ</th>
+                    <th>Было</th>
+                    <th>Стало</th>
+                    <th>Изменение</th>
+                    <th>Причина</th>
+                    <th>Дата</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="item : ${history}">
+                    <td th:text="${item.id}">1</td>
+                    <td th:text="${item.productName}">Товар</td>
+                    <td th:text="${item.sellerEmail != null ? item.sellerEmail : '-'}">seller@mail.com</td>
+                    <td th:text="${item.userEmail != null ? item.userEmail : '-'}">user@mail.com</td>
+                    <td th:text="${item.orderId != null ? item.orderId : '-'}">1</td>
+                    <td th:text="${item.oldQuantity != null ? item.oldQuantity : '-'}">0</td>
+                    <td th:text="${item.newQuantity != null ? item.newQuantity : '-'}">0</td>
+
+                    <td>
+                        <span th:class="${item.changeAmount >= 0 ? 'change-plus' : 'change-minus'}"
+                              th:text="${item.changeAmount}">
+                            0
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge" th:text="${item.reason}">REASON</span>
+                    </td>
+
+                    <td th:text="${item.createdAt != null ? #temporals.format(item.createdAt, 'dd.MM.yyyy HH:mm') : '-'}">
+                        дата
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>
