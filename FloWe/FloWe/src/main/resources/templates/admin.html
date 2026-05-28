@@ -74,6 +74,21 @@
         .muted {
             color: #6b7280;
         }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .order-items {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .order-items li {
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -83,7 +98,11 @@
 <main class="page">
     <div class="toolbar">
         <h1>Панель администратора</h1>
-        <a class="btn primary" th:href="@{/products}">Открыть каталог</a>
+
+        <div class="top-actions">
+            <a class="btn primary" th:href="@{/products}">Открыть каталог</a>
+            <a class="btn ghost" th:href="@{/admin/payments}">Оплаты пользователей</a>
+        </div>
     </div>
 
     <section class="grid three">
@@ -180,6 +199,7 @@
                                th:if="${_csrf != null}"
                                th:name="${_csrf.parameterName}"
                                th:value="${_csrf.token}">
+
                         <input type="hidden" name="enabled" value="false">
 
                         <button class="btn ghost" type="submit">Отключить</button>
@@ -193,6 +213,7 @@
                                th:if="${_csrf != null}"
                                th:name="${_csrf.parameterName}"
                                th:value="${_csrf.token}">
+
                         <input type="hidden" name="enabled" value="true">
 
                         <button class="btn primary" type="submit">Активировать</button>
@@ -302,19 +323,25 @@
                 <td th:text="${order.userId}">1</td>
                 <td th:text="${order.status}">PAID</td>
                 <td th:text="${order.totalAmount} + ' ₽'">0 ₽</td>
-                <td th:text="${order.createdAt}">Дата</td>
+
+                <td th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd.MM.yyyy HH:mm') : '-'}">
+                    Дата
+                </td>
+
                 <td>
                     <div th:if="${order.items == null or order.items.isEmpty()}" class="muted">
                         Нет позиций
                     </div>
 
-                    <div th:if="${order.items != null and !order.items.isEmpty()}">
-                        <div th:each="item : ${order.items}">
-                            <span th:text="${item.productName}">Товар</span>,
-                            <span th:text="${item.quantity}">1</span> шт.,
+                    <ul class="order-items" th:if="${order.items != null and !order.items.isEmpty()}">
+                        <li th:each="item : ${order.items}">
+                            <span th:text="${item.productName}">Товар</span>
+                            —
+                            <span th:text="${item.quantity}">1</span>
+                            шт. ×
                             <span th:text="${item.unitPrice} + ' ₽'">0 ₽</span>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
                 </td>
             </tr>
             </tbody>

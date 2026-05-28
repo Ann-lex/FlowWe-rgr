@@ -14,19 +14,28 @@
     <div class="toolbar">
         <h1>Корзина</h1>
 
-        <form th:if="${cart.items != null and !cart.items.isEmpty()}"
+        <form th:if="${cart != null and cart.items != null and !cart.items.isEmpty()}"
               th:action="@{/cart/clear}"
               method="post"
               data-confirm="Очистить корзину?">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
             <button class="btn ghost" type="submit">Очистить</button>
         </form>
     </div>
 
-    <p class="empty" th:if="${cart.items == null or cart.items.isEmpty()}">
+    <p class="alert error" th:if="${error}" th:text="${error}"></p>
+    <p class="alert" th:if="${success}" th:text="${success}"></p>
+
+    <p class="empty" th:if="${cart == null or cart.items == null or cart.items.isEmpty()}">
         Корзина пока пуста.
     </p>
 
-    <table class="table" th:if="${cart.items != null and !cart.items.isEmpty()}">
+    <table class="table" th:if="${cart != null and cart.items != null and !cart.items.isEmpty()}">
         <thead>
         <tr>
             <th>Товар</th>
@@ -52,10 +61,17 @@
                 <form class="actions"
                       th:action="@{/cart/items/{id}/quantity(id=${item.id})}"
                       method="post">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
                     <input type="number"
                            name="quantity"
                            min="1"
                            th:value="${item.quantity}">
+
                     <button class="btn ghost" type="submit">Обновить</button>
                 </form>
             </td>
@@ -66,6 +82,12 @@
                 <form th:action="@{/cart/items/{id}/delete(id=${item.id})}"
                       method="post"
                       data-confirm="Удалить товар из корзины?">
+
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
                     <button class="btn ghost" type="submit">Удалить</button>
                 </form>
             </td>
@@ -74,7 +96,7 @@
     </table>
 
     <section class="card"
-             th:if="${cart.items != null and !cart.items.isEmpty()}"
+             th:if="${cart != null and cart.items != null and !cart.items.isEmpty()}"
              style="margin-top:18px;">
         <h3>Итого</h3>
 
@@ -89,6 +111,11 @@
         </p>
 
         <form th:action="@{/cart/checkout}" method="post">
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
             <button class="btn primary" type="submit">Оформить покупку</button>
         </form>
     </section>

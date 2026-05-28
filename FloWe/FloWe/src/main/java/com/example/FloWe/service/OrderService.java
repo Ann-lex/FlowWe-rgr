@@ -13,6 +13,7 @@ import com.example.FloWe.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,15 +24,18 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final PaymentService paymentService;
 
     public OrderService(OrderRepository orderRepository,
                         CartRepository cartRepository,
                         ProductRepository productRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository,
+                        PaymentService paymentService) {
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.paymentService = paymentService;
     }
 
     @Transactional
@@ -43,7 +47,9 @@ public class OrderService {
             throw new IllegalArgumentException("Корзина пуста");
         }
 
-        if (user.getBalance() == null || user.getBalance().compareTo(cart.getTotalPrice()) < 0) {
+        BigDecimal totalAmount = cart.getTotalPrice();
+
+        if (user.getBalance() == null || user.getBalance().compareTo(totalAmount) < 0) {
             throw new IllegalArgumentException("Недостаточно средств на балансе");
         }
 
@@ -61,7 +67,7 @@ public class OrderService {
         Order order = new Order();
         order.setUserId(user.getId());
         order.setStatus("PAID");
-        order.setTotalAmount(cart.getTotalPrice());
+        order.setTotalAmount(totalAmount);
         order.setDeliveryAddress("Не указан");
         order.setComment(null);
         order.setCreatedAt(now);
@@ -81,7 +87,11 @@ public class OrderService {
             productRepository.decreaseQuantity(cartItem.getProductId(), cartItem.getQuantity());
         }
 
-        userRepository.updateBalance(user.getId(), user.getBalance().subtract(cart.getTotalPrice()));
+        BigDecimal newBalance = user.getBalance().subtract(totalAmount);
+        userRepository.updateBalance(user.getId(), newBalance);
+
+        paymentService.createSuccessfulPayment(orderId, user.getId(), totalAmount);
+
         cartRepository.clear(cart.getId());
     }
 

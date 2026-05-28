@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Оплаты пользователей | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+
+    <style>
+        .payments-page {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .payments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .payments-header h1 {
+            margin: 0;
+        }
+
+        .muted {
+            color: #6b7280;
+            margin-top: 6px;
+        }
+
+        .payments-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .payments-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .summary-card h3 {
+            margin: 0 0 8px;
+            font-size: 15px;
+            color: #374151;
+        }
+
+        .summary-card b {
+            font-size: 22px;
+            color: #111827;
+        }
+
+        .payments-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .payments-table thead {
+            background: #f9fafb;
+        }
+
+        .payments-table th,
+        .payments-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .payments-table th {
+            font-weight: 700;
+            color: #374151;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .payments-table td {
+            color: #111827;
+        }
+
+        .payments-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .payments-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .payment-id {
+            font-weight: 700;
+            color: #4b5563;
+        }
+
+        .payment-order {
+            font-weight: 600;
+        }
+
+        .payment-user {
+            word-break: break-word;
+        }
+
+        .payment-amount {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .payment-status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .payment-method {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .payments-empty {
+            padding: 24px;
+            border-radius: 12px;
+            background: #f9fafb;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .payments-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .payments-card {
+                padding: 16px;
+            }
+
+            .payments-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .payments-table {
+                min-width: 900px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="page payments-page">
+    <div class="payments-header">
+        <div>
+            <h1>Оплаты пользователей</h1>
+            <p class="muted">
+                Здесь отображаются все оплаты заказов, выполненные через баланс аккаунта.
+            </p>
+        </div>
+
+        <a class="btn ghost" th:href="@{/admin}">Вернуться в админ-панель</a>
+    </div>
+
+    <section class="payments-summary">
+        <article class="summary-card">
+            <h3>Всего оплат</h3>
+            <b th:text="${payments != null ? payments.size() : 0}">0</b>
+        </article>
+    </section>
+
+    <section class="payments-card">
+        <p class="payments-empty" th:if="${payments == null or payments.isEmpty()}">
+            Оплат пока нет.
+        </p>
+
+        <div class="payments-table-wrapper" th:if="${payments != null and !payments.isEmpty()}">
+            <table class="payments-table">
+                <thead>
+                <tr>
+                    <th>ID оплаты</th>
+                    <th>ID заказа</th>
+                    <th>Пользователь</th>
+                    <th>Сумма</th>
+                    <th>Способ оплаты</th>
+                    <th>Статус</th>
+                    <th>Дата</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="payment : ${payments}">
+                    <td>
+                        <span class="payment-id" th:text="${payment.id}">1</span>
+                    </td>
+
+                    <td>
+                        <span class="payment-order" th:text="${payment.orderId}">1</span>
+                    </td>
+
+                    <td>
+                        <span class="payment-user" th:text="${payment.userEmail}">user@example.com</span>
+                    </td>
+
+                    <td>
+                        <span class="payment-amount" th:text="${payment.amount} + ' ₽'">0 ₽</span>
+                    </td>
+
+                    <td>
+                        <span class="payment-method" th:text="${payment.paymentMethod}">BALANCE</span>
+                    </td>
+
+                    <td>
+                        <span class="payment-status" th:text="${payment.status}">PAID</span>
+                    </td>
+
+                    <td th:text="${payment.createdAt != null ? #temporals.format(payment.createdAt, 'dd.MM.yyyy HH:mm') : '-'}">
+                        дата
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="payments-actions">
+            <a class="btn primary" th:href="@{/admin}">Панель администратора</a>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>
