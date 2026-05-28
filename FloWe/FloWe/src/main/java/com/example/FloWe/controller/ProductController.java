@@ -39,17 +39,31 @@ public class ProductController {
     ) {
         model.addAttribute("categories", categoryService.findAll());
 
-        if (categoryId == null) {
+        boolean hasSearchParams = hasSearchParams(keyword, minPrice, maxPrice);
+
+        if (categoryId == null && !hasSearchParams) {
             model.addAttribute("showCategoriesOnly", true);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("minPrice", minPrice);
+            model.addAttribute("maxPrice", maxPrice);
             return "products";
         }
 
-        Optional<Category> selectedCategory = categoryService.findById(categoryId);
+        Category selectedCategory = null;
 
-        if (selectedCategory.isEmpty()) {
-            model.addAttribute("showCategoriesOnly", true);
-            model.addAttribute("error", "Категория не найдена");
-            return "products";
+        if (categoryId != null) {
+            Optional<Category> category = categoryService.findById(categoryId);
+
+            if (category.isEmpty()) {
+                model.addAttribute("showCategoriesOnly", true);
+                model.addAttribute("error", "Категория не найдена");
+                model.addAttribute("keyword", keyword);
+                model.addAttribute("minPrice", minPrice);
+                model.addAttribute("maxPrice", maxPrice);
+                return "products";
+            }
+
+            selectedCategory = category.get();
         }
 
         try {
@@ -57,19 +71,25 @@ public class ProductController {
 
             model.addAttribute("showCategoriesOnly", false);
             model.addAttribute("products", products);
-            model.addAttribute("selectedCategory", selectedCategory.get());
+            model.addAttribute("selectedCategory", selectedCategory);
+            model.addAttribute("selectedCategoryId", categoryId);
 
             model.addAttribute("keyword", keyword);
-            model.addAttribute("selectedCategoryId", categoryId);
             model.addAttribute("minPrice", minPrice);
             model.addAttribute("maxPrice", maxPrice);
 
             return "products";
+
         } catch (IllegalArgumentException e) {
             model.addAttribute("showCategoriesOnly", false);
-            model.addAttribute("products", productService.search(null, categoryId, null, null));
-            model.addAttribute("selectedCategory", selectedCategory.get());
+            model.addAttribute("products", List.of());
+            model.addAttribute("selectedCategory", selectedCategory);
             model.addAttribute("selectedCategoryId", categoryId);
+
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("minPrice", minPrice);
+            model.addAttribute("maxPrice", maxPrice);
+
             model.addAttribute("error", e.getMessage());
 
             return "products";
@@ -99,5 +119,13 @@ public class ProductController {
         model.addAttribute("reviewCount", reviewService.countReviews(id));
 
         return "product-details";
+    }
+
+    private boolean hasSearchParams(String keyword, String minPrice, String maxPrice) {
+        return isNotBlank(keyword) || isNotBlank(minPrice) || isNotBlank(maxPrice);
+    }
+
+    private boolean isNotBlank(String value) {
+        return value != null && !value.isBlank();
     }
 }
