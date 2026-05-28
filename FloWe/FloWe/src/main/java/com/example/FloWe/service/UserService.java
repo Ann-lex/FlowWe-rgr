@@ -21,6 +21,10 @@ public class UserService {
 
     private static final Set<String> ROLES = Set.of("ADMIN", "SELLER", "BUYER");
 
+    private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
+    private static final String PASSWORD_ERROR =
+            "Пароль должен содержать латинские буквы и цифры, минимум 6 символов";
+
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
@@ -45,6 +49,8 @@ public class UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Пользователь с таким email уже существует");
         }
+
+        validatePassword(request.getPassword());
 
         User user = new User();
 
@@ -111,6 +117,8 @@ public class UserService {
 
     public void resetPassword(String token, String newPassword) {
 
+        validatePassword(newPassword);
+
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Неверная ссылка восстановления"));
 
@@ -163,5 +171,11 @@ public class UserService {
         }
 
         userRepository.updateBalance(userId, balance);
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || !password.matches(PASSWORD_PATTERN)) {
+            throw new IllegalArgumentException(PASSWORD_ERROR);
+        }
     }
 }

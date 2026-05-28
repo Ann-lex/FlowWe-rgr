@@ -15,25 +15,48 @@
 
     <p class="alert error" th:if="${error}" th:text="${error}"></p>
 
-    <form class="form" th:action="@{/register}" th:object="${registerRequest}" method="post">
+    <form class="form" th:action="@{/register}" th:object="${registerRequest}" method="post" novalidate>
         <div class="form-row">
             <label for="firstName">Имя</label>
-            <input id="firstName" type="text" th:field="*{firstName}" required>
+            <input id="firstName" type="text" th:field="*{firstName}">
+            <p class="alert error"
+               th:if="${#fields.hasErrors('firstName')}"
+               th:errors="*{firstName}">
+                Ошибка имени
+            </p>
         </div>
 
         <div class="form-row">
             <label for="lastName">Фамилия</label>
-            <input id="lastName" type="text" th:field="*{lastName}" required>
+            <input id="lastName" type="text" th:field="*{lastName}">
+            <p class="alert error"
+               th:if="${#fields.hasErrors('lastName')}"
+               th:errors="*{lastName}">
+                Ошибка фамилии
+            </p>
         </div>
 
         <div class="form-row">
             <label for="email">Email</label>
-            <input id="email" type="email" th:field="*{email}" required>
+            <input id="email" type="email" th:field="*{email}">
+            <p class="alert error"
+               th:if="${#fields.hasErrors('email')}"
+               th:errors="*{email}">
+                Ошибка email
+            </p>
         </div>
 
         <div class="form-row">
             <label for="password">Пароль</label>
-            <input id="password" type="password" th:field="*{password}" required>
+            <input id="password" type="password" th:field="*{password}">
+            <p class="hint">
+                Пароль должен содержать латинские буквы и цифры, минимум 6 символов.
+            </p>
+            <p class="alert error"
+               th:if="${#fields.hasErrors('password')}"
+               th:errors="*{password}">
+                Ошибка пароля
+            </p>
         </div>
 
         <button class="btn primary" type="submit">Зарегистрироваться</button>
