@@ -36,7 +36,10 @@ public class SecurityConfig {
                         .requestMatchers("/seller/**").hasRole("SELLER")
                         .requestMatchers("/favorites/**").hasRole("BUYER")
                         .requestMatchers("/products/*/reviews").hasRole("BUYER")
-                        .requestMatchers("/profile/**", "/cart/**", "/orders/**").authenticated()
+                        .requestMatchers("/cart/**").hasRole("BUYER")
+                        .requestMatchers("/orders/**").hasRole("BUYER")
+                        .requestMatchers("/favorites/**").hasRole("BUYER")
+                        .requestMatchers("/profile/**").hasRole("BUYER")
                         .anyRequest().permitAll()
                 )
                 .formLogin(form -> form

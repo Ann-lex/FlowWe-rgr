@@ -60,34 +60,59 @@
                 <span th:if="${product.quantity <= 0}">Товара нет в наличии.</span>
             </p>
 
-            <div class="product-actions">
+            <div class="product-actions" sec:authorize="hasRole('BUYER')">
                 <form th:action="@{/cart/items}" method="post">
-                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
                     <input type="hidden" name="productId" th:value="${product.id}">
-                    <input type="number" name="quantity" value="1" min="1" th:max="${product.quantity}">
-                    <button class="btn primary" type="submit" th:disabled="${product.quantity <= 0}">
+
+                    <input type="number"
+                           name="quantity"
+                           value="1"
+                           min="1"
+                           th:max="${product.quantity}">
+
+                    <button class="btn primary"
+                            type="submit"
+                            th:disabled="${product.quantity <= 0}">
                         В корзину
                     </button>
                 </form>
 
-                <form th:action="@{/favorites/add/{id}(id=${product.id})}" method="post">
-                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <form th:action="@{/favorites/add/{productId}(productId=${product.id})}" method="post">
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
                     <button class="btn ghost" type="submit">В избранное</button>
                 </form>
             </div>
+
+            <p class="muted" sec:authorize="hasRole('SELLER') or hasRole('ADMIN')">
+                Каталог доступен только для просмотра.
+            </p>
+
+            <p class="muted" sec:authorize="isAnonymous()">
+                Чтобы добавить товар в корзину или избранное, нужно
+                <a th:href="@{/login}">войти как покупатель</a>.
+            </p>
 
             <section class="reviews-panel">
                 <div class="reviews-head">
                     <h2>Отзывы и оценки</h2>
 
                     <span class="rating-big" th:if="${reviewCount > 0}">
-            Средняя оценка:
-            <span th:text="${averageRating}">0.0</span> / 5
-        </span>
+                        Средняя оценка:
+                        <span th:text="${averageRating}">0.0</span> / 5
+                    </span>
 
                     <span class="rating-big" th:if="${reviewCount == 0}">
-            Отзывов пока нет
-        </span>
+                        Отзывов пока нет
+                    </span>
                 </div>
 
                 <p class="alert" th:if="${reviewSuccess}" th:text="${reviewSuccess}"></p>
@@ -146,9 +171,9 @@
                     <b th:text="${review.userName}">Покупатель</b>
 
                     <span>
-            Оценка:
-            <span th:text="${review.rating}">5</span> / 5
-        </span>
+                        Оценка:
+                        <span th:text="${review.rating}">5</span> / 5
+                    </span>
 
                     <p th:text="${review.text}">
                         Текст отзыва

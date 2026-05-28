@@ -12,13 +12,13 @@
             <a th:href="@{/}">Главная</a>
             <a th:href="@{/products}">Каталог</a>
 
-            <a th:href="@{/cart}" sec:authorize="hasRole('BUYER')">Корзина</a>
+            <a th:href="@{/profile}" sec:authorize="hasRole('BUYER')">Профиль</a>
+            <a th:href="@{/orders}" sec:authorize="hasRole('BUYER')">Мои заказы</a>
             <a th:href="@{/favorites}" sec:authorize="hasRole('BUYER')">Избранное</a>
+            <a th:href="@{/cart}" sec:authorize="hasRole('BUYER')">Корзина</a>
 
-            <a th:href="@{/seller}" sec:authorize="hasRole('SELLER')">Продавец</a>
-            <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Админ</a>
-
-            <a th:href="@{/profile}" sec:authorize="isAuthenticated()">Профиль</a>
+            <a th:href="@{/seller}" sec:authorize="hasRole('SELLER')">Кабинет продавца</a>
+            <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')">Админ-панель</a>
         </nav>
 
         <div class="header-actions">
@@ -26,10 +26,22 @@
                 <span sec:authentication="name"></span>
             </span>
 
-            <a class="btn btn-light" th:href="@{/login}" sec:authorize="!isAuthenticated()">Войти</a>
-            <a class="btn btn-primary" th:href="@{/register}" sec:authorize="!isAuthenticated()">Регистрация</a>
+            <a class="btn btn-light"
+               th:href="@{/login}"
+               sec:authorize="!isAuthenticated()">Войти</a>
 
-            <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+            <a class="btn btn-primary"
+               th:href="@{/register}"
+               sec:authorize="!isAuthenticated()">Регистрация</a>
+
+            <form th:action="@{/logout}"
+                  method="post"
+                  sec:authorize="isAuthenticated()">
+                <input type="hidden"
+                       th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
                 <button class="btn btn-light" type="submit">Выйти</button>
             </form>
         </div>
