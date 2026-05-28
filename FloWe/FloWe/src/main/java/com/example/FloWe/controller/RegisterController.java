@@ -24,7 +24,34 @@ public class RegisterController {
         model.addAttribute("registerRequest", new RegisterRequest());
         return "register";
     }
-    
+
+    @GetMapping("/resend-verification")
+    public String showResendVerificationForm() {
+        return "resend-verification";
+    }
+
+    @PostMapping("/resend-verification")
+    public String resendVerification(@RequestParam String email, Model model) {
+        try {
+            userService.resendVerificationEmail(email);
+
+            model.addAttribute(
+                    "message",
+                    "Новое письмо подтверждения отправлено на почту."
+            );
+
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+
+        } catch (Exception e) {
+            model.addAttribute(
+                    "error",
+                    "Не удалось отправить письмо. Проверьте настройки почты или попробуйте позже."
+            );
+        }
+
+        return "resend-verification";
+    }
     
     @PostMapping("/register")
     public String register(@Valid RegisterRequest registerRequest,

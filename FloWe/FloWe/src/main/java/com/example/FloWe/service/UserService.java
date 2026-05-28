@@ -94,6 +94,31 @@ public class UserService {
         verificationTokenRepository.deleteByToken(token);
     }
 
+    public void resendVerificationEmail(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь с таким email не найден"));
+
+        if (user.isEnabled()) {
+            throw new IllegalArgumentException("Этот аккаунт уже подтверждён");
+        }
+
+        verificationTokenRepository.deleteByUserId(user.getId());
+
+        String token = UUID.randomUUID().toString();
+
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUserId(user.getId());
+        verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
+
+        verificationTokenRepository.save(verificationToken);
+
+        String verificationLink = "http://localhost:8080/verify?token=" + token;
+
+        emailService.sendVerificationEmail(user.getEmail(), verificationLink);
+    }
+
     public void createPasswordResetToken(String email) {
 
         User user = userRepository.findByEmail(email)

@@ -12,7 +12,11 @@
 
 <p th:text="${message}"></p>
 
-<a href="/login">Войти</a>
+<a href="/login">Перейти ко входу</a>
+
+<p>
+    <a th:href="@{/resend-verification}">Отправить письмо подтверждения повторно</a>
+</p>
 
 </body>
 </html>

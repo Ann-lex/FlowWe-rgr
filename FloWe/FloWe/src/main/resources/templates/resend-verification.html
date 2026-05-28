@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Повторное подтверждение email | FloWe</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="page">
+    <h1>Повторная отправка письма подтверждения</h1>
+
+    <p>
+        Если вы зарегистрировались, но не получили письмо, введите email.
+        Мы отправим новую ссылку подтверждения.
+    </p>
+
+    <p class="alert" th:if="${message}" th:text="${message}"></p>
+    <p class="alert error" th:if="${error}" th:text="${error}"></p>
+
+    <form class="form" th:action="@{/resend-verification}" method="post">
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}">
+
+        <div class="form-row">
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" required>
+        </div>
+
+        <button class="btn primary" type="submit">Отправить письмо повторно</button>
+    </form>
+
+    <p>
+        <a th:href="@{/login}">Вернуться ко входу</a>
+    </p>
+</main>
+
+</body>
+</html>

@@ -52,6 +52,15 @@ public class VerificationTokenRepository {
         jdbcTemplate.update(sql, token);
     }
 
+    public void deleteByUserId(Long userId) {
+        String sql = """
+            DELETE FROM verification_tokens
+            WHERE user_id = ?
+            """;
+
+        jdbcTemplate.update(sql, userId);
+    }
+
     private VerificationToken mapRowToVerificationToken(ResultSet rs, int rowNum) throws SQLException {
         VerificationToken verificationToken = new VerificationToken();
 
