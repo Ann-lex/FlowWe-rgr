@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -110,7 +111,8 @@ public class OrderRepository {
         order.setDeliveryAddress(rs.getString("delivery_address"));
         order.setComment(rs.getString("comment"));
         order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        order.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+        Timestamp updatedAt = rs.getTimestamp("updated_at");
+        order.setUpdatedAt(updatedAt != null ? updatedAt.toLocalDateTime() : null);
 
         return order;
     }

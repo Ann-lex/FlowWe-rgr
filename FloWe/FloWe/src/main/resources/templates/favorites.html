@@ -26,7 +26,7 @@
             <div class="product-body">
                 <h3>
                     <a th:href="@{/products/{id}(id=${item.productId})}"
-                       th:text="${item.productName}">
+                       th:text="${item.name}">
                         Товар
                     </a>
                 </h3>
@@ -34,26 +34,28 @@
                 <p th:text="${item.description}">Описание</p>
                 <strong th:text="${item.price} + ' ₽'">0 ₽</strong>
 
-                <form th:action="@{/favorites/items/{id}/access(id=${item.productId})}" method="post">
-                    <label>Доступ</label>
-                    <select name="accessLevel">
-                        <option value="PRIVATE" th:selected="${item.accessLevel == 'PRIVATE'}">Только мне</option>
-                        <option value="LINK" th:selected="${item.accessLevel == 'LINK'}">По ссылке</option>
-                        <option value="PUBLIC" th:selected="${item.accessLevel == 'PUBLIC'}">Публично</option>
-                    </select>
-
-                    <button class="btn ghost" type="submit">Сохранить</button>
-                </form>
-
                 <div class="actions">
                     <form th:action="@{/cart/items}" method="post">
                         <input type="hidden" name="productId" th:value="${item.productId}">
+                        <input type="hidden" name="quantity" value="1">
+
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+
                         <button class="btn primary" type="submit">В корзину</button>
                     </form>
 
-                    <form th:action="@{/favorites/items/{id}/delete(id=${item.productId})}"
+                    <form th:action="@{/favorites/remove/{productId}(productId=${item.productId})}"
                           method="post"
                           data-confirm="Удалить товар из избранного?">
+
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}">
+
                         <button class="btn ghost" type="submit">Удалить</button>
                     </form>
                 </div>

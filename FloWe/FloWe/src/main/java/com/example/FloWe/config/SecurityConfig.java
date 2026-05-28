@@ -33,6 +33,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/seller/**").hasRole("SELLER")
+                        .requestMatchers("/favorites/**").hasRole("BUYER")
                         .requestMatchers("/profile/**", "/cart/**", "/orders/**").authenticated()
                         .anyRequest().permitAll()
                 )
