@@ -4,6 +4,7 @@ import com.example.FloWe.model.Category;
 import com.example.FloWe.model.Product;
 import com.example.FloWe.service.CategoryService;
 import com.example.FloWe.service.ProductService;
+import com.example.FloWe.service.ReviewService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +19,14 @@ public class ProductController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+    private final ReviewService reviewService;
 
-    public ProductController(ProductService productService, CategoryService categoryService) {
+    public ProductController(ProductService productService,
+                             CategoryService categoryService,
+                             ReviewService reviewService) {
         this.productService = productService;
         this.categoryService = categoryService;
+        this.reviewService = reviewService;
     }
 
     @GetMapping("/products")
@@ -88,6 +93,10 @@ public class ProductController {
 
         model.addAttribute("product", product.get());
         model.addAttribute("returnCategoryId", categoryId);
+
+        model.addAttribute("reviews", reviewService.findByProductId(id));
+        model.addAttribute("averageRating", reviewService.getAverageRating(id));
+        model.addAttribute("reviewCount", reviewService.countReviews(id));
 
         return "product-details";
     }
