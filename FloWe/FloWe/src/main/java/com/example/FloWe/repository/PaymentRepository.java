@@ -35,25 +35,6 @@ public class PaymentRepository {
         );
     }
 
-    public List<Payment> findByUserId(Long userId) {
-        String sql = """
-                SELECT p.id,
-                       p.order_id,
-                       p.user_id,
-                       p.amount,
-                       p.payment_method,
-                       p.status,
-                       p.created_at,
-                       u.email AS user_email
-                FROM payments p
-                JOIN users u ON u.id = p.user_id
-                WHERE p.user_id = ?
-                ORDER BY p.created_at DESC
-                """;
-
-        return jdbcTemplate.query(sql, this::mapPayment, userId);
-    }
-
     public List<Payment> findAll() {
         String sql = """
                 SELECT p.id,

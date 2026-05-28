@@ -33,14 +33,10 @@ public class PaymentService {
         payment.setOrderId(orderId);
         payment.setUserId(userId);
         payment.setAmount(amount);
-        payment.setPaymentMethod("BALANCE");
-        payment.setStatus("PAID");
+        payment.setPaymentMethod("БАЛАНС");
+        payment.setStatus("ОПЛАЧЕНО");
 
         paymentRepository.save(payment);
-    }
-
-    public List<Payment> findByUserId(Long userId) {
-        return paymentRepository.findByUserId(userId);
     }
 
     public List<Payment> findAll() {
