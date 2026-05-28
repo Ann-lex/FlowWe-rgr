@@ -22,6 +22,7 @@ public class UserService {
     private static final Set<String> ROLES = Set.of("ADMIN", "SELLER", "BUYER");
 
     private static final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$";
+
     private static final String PASSWORD_ERROR =
             "Пароль должен содержать латинские буквы и цифры, минимум 6 символов";
 
@@ -44,9 +45,10 @@ public class UserService {
         this.emailService = emailService;
     }
 
-    public void register(RegisterRequest request) {
+    public boolean register(RegisterRequest request) {
+        String email = normalizeRequiredText(request.getEmail(), "Email не может быть пустым");
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Пользователь с таким email уже существует");
         }
 
@@ -54,9 +56,9 @@ public class UserService {
 
         User user = new User();
 
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
+        user.setFirstName(normalizeRequiredText(request.getFirstName(), "Имя не может быть пустым"));
+        user.setLastName(normalizeRequiredText(request.getLastName(), "Фамилия не может быть пустой"));
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole("BUYER");
         user.setEnabled(false);
@@ -65,7 +67,7 @@ public class UserService {
         userRepository.save(user);
 
         User savedUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден после сохранения"));
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден после сохранения"));
 
         String token = UUID.randomUUID().toString();
 
@@ -78,7 +80,12 @@ public class UserService {
 
         String verificationLink = "http://localhost:8080/verify?token=" + token;
 
-        emailService.sendVerificationEmail(savedUser.getEmail(), verificationLink);
+        try {
+            emailService.sendVerificationEmail(savedUser.getEmail(), verificationLink);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void verifyUser(String token) {
@@ -95,8 +102,9 @@ public class UserService {
     }
 
     public void resendVerificationEmail(String email) {
+        String normalizedEmail = normalizeRequiredText(email, "Email не может быть пустым");
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь с таким email не найден"));
 
         if (user.isEnabled()) {
@@ -120,8 +128,9 @@ public class UserService {
     }
 
     public void createPasswordResetToken(String email) {
+        String normalizedEmail = normalizeRequiredText(email, "Email не может быть пустым");
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь с таким email не найден"));
 
         passwordResetTokenRepository.deleteByUserId(user.getId());
@@ -158,7 +167,9 @@ public class UserService {
     }
 
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
+        String normalizedEmail = normalizeRequiredText(email, "Email не может быть пустым");
+
+        return userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь с таким email не найден"));
     }
 
@@ -202,5 +213,13 @@ public class UserService {
         if (password == null || !password.matches(PASSWORD_PATTERN)) {
             throw new IllegalArgumentException(PASSWORD_ERROR);
         }
+    }
+
+    private String normalizeRequiredText(String value, String errorMessage) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+
+        return value.trim();
     }
 }

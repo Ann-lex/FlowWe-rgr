@@ -3,9 +3,7 @@ package com.example.FloWe.controller;
 import com.example.FloWe.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class PasswordResetController {
@@ -22,27 +20,30 @@ public class PasswordResetController {
     }
 
     @PostMapping("/forgot-password")
-    public String processForgotPassword(@RequestParam String email,
-                                        Model model) {
+    public String processForgotPassword(@RequestParam String email, Model model) {
         try {
             userService.createPasswordResetToken(email);
 
             model.addAttribute(
                     "message",
-                    "Ссылка для восстановления пароля отправлена на почту."
+                    "Если пользователь с таким email существует, ссылка для восстановления отправлена на почту."
             );
-
-            return "forgot-password";
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            return "forgot-password";
+
+        } catch (Exception e) {
+            model.addAttribute(
+                    "error",
+                    "Не удалось отправить письмо для восстановления пароля. Проверьте настройки почты или попробуйте позже."
+            );
         }
+
+        return "forgot-password";
     }
 
     @GetMapping("/reset-password")
-    public String showResetPasswordForm(@RequestParam String token,
-                                        Model model) {
+    public String showResetPasswordForm(@RequestParam String token, Model model) {
         model.addAttribute("token", token);
         return "reset-password";
     }
@@ -56,14 +57,21 @@ public class PasswordResetController {
 
             model.addAttribute(
                     "message",
-                    "Пароль успешно изменён. Теперь вы можете войти."
+                    "Пароль успешно изменён. Теперь вы можете войти в аккаунт."
             );
 
-            return "reset-password-success";
+            return "login";
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("token", token);
+
+            return "reset-password";
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Не удалось изменить пароль. Попробуйте позже.");
+            model.addAttribute("token", token);
+
             return "reset-password";
         }
     }
